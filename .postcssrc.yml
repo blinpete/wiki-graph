@@ -1,0 +1,5 @@
+plugins:
+  postcss-normalize:
+    forceImport: true
+  postcss-nesting: {}
+  autoprefixer: {}

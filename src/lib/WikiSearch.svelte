@@ -8,8 +8,22 @@
   import { apiClient } from "./apiClient";
   import Suggestions from "./Suggestions.svelte";
 
+  function search(query) {
+    console.log("[search] query:", query);
+  }
+
   async function onKeyup(e: KeyboardEvent) {
-    if (e.key !== "Enter") return;
+    const q = query.trim();
+    if (!q) {
+      console.log("[onKeyup] empty query given!");
+      suggestions = [];
+      return;
+    }
+
+    if (e.key === "Enter") {
+      search(query);
+      return;
+    }
 
     console.log("keyup:", e);
 
@@ -17,6 +31,12 @@
     suggestions = await apiClient.suggestCustom(query);
 
     // await apiClient.page(query);
+  }
+
+  function onSelect(e: CustomEvent) {
+    query = e.detail;
+    suggestions = [];
+    search(query);
   }
 </script>
 
@@ -28,7 +48,7 @@
     bind:value={query}
     on:keyup={onKeyup}
   />
-  <Suggestions {suggestions} />
+  <Suggestions {suggestions} on:select={onSelect} />
 </div>
 
 <style>
@@ -46,10 +66,12 @@
 
     padding: 4px 10px 6px;
 
-    border: 2px #ccc solid;
-    border-radius: 2px;
+    border: 2px solid var(--borderColor);
+    /* border-radius: 5px 5px 0 0; */
   }
-  input:focus {
-    border-color: #aaa;
+
+  input:focus::placeholder {
+    /* border-color: var(--borderFocusColor); */
+    visibility: hidden;
   }
 </style>

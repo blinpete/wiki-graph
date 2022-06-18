@@ -13,6 +13,8 @@
   }
 
   async function onKeyup(e: KeyboardEvent) {
+    console.log("keyup:", e);
+
     const q = query.trim();
     if (!q) {
       console.log("[onKeyup] empty query given!");
@@ -21,16 +23,14 @@
     }
 
     if (e.key === "Enter") {
-      search(query);
+      search(q);
       return;
     }
 
-    console.log("keyup:", e);
+    // suggestions = await apiClient.suggest(q);
+    suggestions = await apiClient.suggestCustom(q);
 
-    // suggestions = await apiClient.suggest(query);
-    suggestions = await apiClient.suggestCustom(query);
-
-    // await apiClient.page(query);
+    // await apiClient.page(q);
   }
 
   function onSelect(e: CustomEvent) {

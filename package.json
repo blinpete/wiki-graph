@@ -24,14 +24,14 @@
     "vite": "^2.9.9"
   },
   "dependencies": {
-    "delaunator": "^5.0.0",
-    "flatbush": "^4.0.0",
-    "ngraph.events": "^1.2.2",
-    "ngraph.forcelayout": "^3.3.0",
-    "ngraph.graph": "^20.0.0",
-    "ngraph.kruskal": "^1.1.0",
-    "ngraph.random": "^1.1.0",
-    "panzoom": "^9.4.3",
+    "delaunator": "^4.0.1",
+    "flatbush": "^3.3.0",
+    "ngraph.events": "1.2.1",
+    "ngraph.forcelayout": "^1.0.1",
+    "ngraph.graph": "^19.1.0",
+    "ngraph.kruskal": "^1.0.0",
+    "ngraph.random": "^1.0.0",
+    "panzoom": "^9.2.5",
     "query-state": "^4.3.0",
     "simplesvg": "^0.1.1",
     "wikipedia": "^1.1.8"

@@ -1,10 +1,9 @@
 import bus from "../bus";
-import { apiClient } from "../module/api";
 
 /**
  * This function builds a graph from google's auto-suggestions.
  */
-export default function buildGraph(entryWord, MAX_DEPTH, progress) {
+export default function buildGraph(entryWord, getResponse, MAX_DEPTH, progress) {
   console.log(
     "🚀 buildGraph: entryWord, MAX_DEPTH, progress",
     entryWord,
@@ -47,16 +46,12 @@ export default function buildGraph(entryWord, MAX_DEPTH, progress) {
 
   function loadSiblings(parent, results) {
     console.log("🚀 loadSiblings: parent, results", parent, results);
-    // let q = fullQuery(parent).toLocaleLowerCase();
     var parentNode = graph.getNode(parent);
 
     if (!parentNode) {
       throw new Error("Parent is missing for " + parent);
     }
 
-    // moved to getResponse()
-    // .filter(x => x.toLocaleLowerCase().indexOf(q) === 0)
-    // .map(x => x.substring(q.length))
     results.forEach(other => {
       const hasOtherNode = graph.hasNode(other);
       const hasOtherLink =
@@ -90,7 +85,8 @@ export default function buildGraph(entryWord, MAX_DEPTH, progress) {
   }
 
   function fetchNext(query) {
-    pendingResponse = apiClient.getResponse(query);
+    pendingResponse = getResponse(query);
+
     pendingResponse
       .then(res => onPendingReady(res, query))
       .catch(msg => {
@@ -107,12 +103,6 @@ export default function buildGraph(entryWord, MAX_DEPTH, progress) {
       throw Error("got empty result []!");
     }
 
-    // loadSiblings(query, res[1]);
     loadSiblings(query, res);
-
-    // } else {
-    //   console.error(res);
-    //   throw new Error("Unexpected response");
-    // }
   }
 }

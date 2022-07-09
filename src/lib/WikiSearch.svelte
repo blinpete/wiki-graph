@@ -1,15 +1,23 @@
 <script lang="ts">
   // https://www.wikipedia.org
 
-  let query = "";
 
-  let suggestions = [];
+  import {appState} from "../core-anvaka-vs";
 
-  import { apiClient } from "./apiClient";
+  let query = appState.query;
+
+  let suggestions: SuggestionsCustom = [];
+
+  import { apiClient, type SuggestionsCustom } from "./apiClient";
   import Suggestions from "./Suggestions.svelte";
+  
+  import { createEventDispatcher } from "svelte";
+  const dispatch = createEventDispatcher()
 
-  function search(query) {
+  async function search(query) {
     console.log("[search] query:", query);
+    dispatch('search', query)
+    // await apiClient.page(query);
   }
 
   async function onKeyup(e: KeyboardEvent) {
@@ -29,14 +37,12 @@
 
     // suggestions = await apiClient.suggest(q);
     suggestions = await apiClient.suggestCustom(q);
-
-    // await apiClient.page(q);
   }
 
-  function onSelect(e: CustomEvent) {
-    query = e.detail;
+  function onSelect(e: CustomEvent<SuggestionsCustom[number]>) {
+    query = e.detail.title;
     suggestions = [];
-    search(query);
+    search(e.detail.normalized);
   }
 </script>
 

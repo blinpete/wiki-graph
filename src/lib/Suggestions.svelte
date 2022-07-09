@@ -1,14 +1,19 @@
 <script lang="ts">
-  export let suggestions = [];
+  export let suggestions: SuggestionsCustom = [];
 
   import { createEventDispatcher } from "svelte";
-  const dispatch = createEventDispatcher();
+  import type { SuggestionsCustom } from "./apiClient";
+  
+  type EventMap = {
+    select: SuggestionsCustom[number]
+  }
+  const dispatch = createEventDispatcher<EventMap>();
 </script>
 
 {#if suggestions.length}
   <ul class="suggestions">
     {#each suggestions as s}
-      <li on:click={() => dispatch("select", s)}>{s}</li>
+      <li on:click={() => dispatch("select", s)}>{s.title}</li>
     {/each}
   </ul>
 {/if}

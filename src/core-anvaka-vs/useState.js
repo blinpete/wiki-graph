@@ -1,61 +1,71 @@
 import buildGraph from "./buildGraph";
 import Progress from "./Progress";
+import queryState from "query-state";
 
-export function useState(apiClient) {
-  const queryState = require("query-state");
-  const qs = queryState(
-    {
-      query: ""
-    },
-    {
-      useSearch: true
-    }
+let apiClient
+let lastBuilder = null;
+
+const qs = queryState(
+  {
+    query: ""
+  },
+  {
+    useSearch: true
+  }
+);
+
+const appStateFromQuery = qs.get();
+// console.log('[appState] appStateFromQuery:', appStateFromQuery);
+
+// TODO: state should be a Proxy
+const appState = {
+  hasGraph: false,
+  maxDepth: appStateFromQuery.maxDepth || 2,
+  progress: new Progress(),
+  graph: null,
+  query: appStateFromQuery.query,
+};
+
+qs.onChange(updateAppState);
+
+function updateAppState(newState) {
+  appState.query = newState.query;
+}
+
+function performSearch(queryString) {
+  appState.hasGraph = true;
+  appState.progress.reset();
+
+  qs.set("query", queryString);
+  if (lastBuilder) {
+    lastBuilder.dispose();
+  }
+
+  console.log("apiClient:", apiClient);
+
+  lastBuilder = buildGraph(
+    queryString,
+    apiClient.getResponse,
+    apiClient.getItemId,
+    appState.maxDepth,
+    appState.progress
   );
 
-  const appStateFromQuery = qs.get();
-  // console.log('[appState] appStateFromQuery:', appStateFromQuery);
+  // appState.graph = Object.freeze(lastBuilder.graph);
+  appState.graph = lastBuilder.graph;
+  return lastBuilder.graph;
+}
 
-  // TODO: state should be a Proxy
-  const appState = {
-    hasGraph: false,
-    maxDepth: appStateFromQuery.maxDepth || 2,
-    progress: new Progress(),
-    graph: null,
-    query: appStateFromQuery.query,
-  };
+function setApiClient(value) {
+  apiClient = value
+}
 
+export {
+  appState,
+  performSearch,
+  setApiClient,
+}
 
-  if (appState.query) {
-    performSearch(appState.query);
-  }
-
-
-  qs.onChange(updateAppState);
-
-  function updateAppState(newState) {
-    appState.query = newState.query;
-  }
-
-
-  let lastBuilder;
-
-  function performSearch(queryString) {
-    appState.hasGraph = true;
-    appState.progress.reset();
-
-    qs.set("query", queryString);
-    if (lastBuilder) {
-      lastBuilder.dispose();
-    }
-
-    console.log("apiClient:", apiClient);
-
-    lastBuilder = buildGraph(queryString, apiClient.getResponse, appState.maxDepth, appState.progress);
-
-    appState.graph = Object.freeze(lastBuilder.graph);
-    return lastBuilder.graph;
-  }
-
-
-  return { appState, performSearch }
-}  
+// if (appState.query) {
+//   performSearch(appState.query);
+// }

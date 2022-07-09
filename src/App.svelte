@@ -2,11 +2,15 @@
   import WikiSearch from "./lib/WikiSearch.svelte";
   
   import { bus, createRenderer } from "./core-anvaka-vs";
-  import { useState } from "./core-anvaka-vs/useState";
+  import {appState, performSearch, setApiClient} from "./core-anvaka-vs";
   import { apiClient } from "./lib/apiClient";
 
-  const {appState, performSearch} = useState(apiClient)
+  setApiClient(apiClient)
   console.log('[App] appState:', appState)
+
+  if (appState.query) {
+    performSearch(appState.query);
+  }
 
   const renderer = createRenderer(appState.progress);
 
@@ -19,7 +23,6 @@
   if (appState.graph) {
     renderer.render(appState.graph);
   }
-
 
 
   function onSearch(e: CustomEvent) {

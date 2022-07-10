@@ -1,11 +1,15 @@
-import wiki from "wikipedia";
+import wiki, { relatedResult } from "wikipedia";
 
+export function resolveQueryFromLink(from, to) {
+  const pattern = "[query] vs ...";
+  return pattern.replace("[query]", from).replace("...", to);
+}
 
 // ------------------------------------------------------------ //
 //                        Auto completion                      //
 // -----------------------------------------------------------//
 
-/** Wraps `wiki.search()` method */ 
+/** Wraps `wiki.search()` method */
 async function suggest(query: string) {
   const resSearch = await wiki.search(query, {
     limit: 10,
@@ -16,7 +20,7 @@ async function suggest(query: string) {
   // const resSuggest = await wiki.suggest(query);
   // console.log("resSuggest:", resSuggest);
 
-  return resSearch.results
+  return resSearch.results;
 }
 
 const getUrlSuggest = (query) =>
@@ -30,24 +34,35 @@ const getUrlSuggest = (query) =>
   &limit=10
   &origin=*`.replaceAll(/\n\s*/g, "");
 
-
 /**
  * Uses `Legacy Wikipedia API - api.php`
- * 
+ *
  * https://www.mediawiki.org/wiki/API:Main_page
  * */
 async function suggestCustom(query: string) {
-  
   const apiEndpoint = getUrlSuggest(query);
   console.log("api endpoint:", apiEndpoint);
   console.log("encoded url:", encodeURI(query));
-  
-  const fetchSearch = await (await fetch(apiEndpoint)).json();
+
+  const fetchSearch = (await (await fetch(apiEndpoint)).json()) as [
+    string,
+    string[],
+    string[],
+    string[]
+  ];
   console.log("fetchSearch:", fetchSearch);
 
   // return fetchSearch [query, suggests[], ""[], links[]]
-  return fetchSearch[1]
+  const [, titles, , links] = fetchSearch;
+
+  const res: SuggestionsCustom = [];
+  for (let i = 0; i < titles.length; i++)
+    res.push({ title: titles[i], normalized: links[i].split("/").at(-1) });
+
+  return res;
 }
+
+export type SuggestionsCustom = { title: string; normalized: string }[];
 
 // ------------------------------------------------------------ //
 //                       Links & Preview                       //
@@ -55,14 +70,17 @@ async function suggestCustom(query: string) {
 
 /** Loads page links and intro. */
 async function page(query: string) {
-  const resPage = await wiki.page(query, { autoSuggest: true,  redirect: false });
+  const resPage = await wiki.page(query, {
+    autoSuggest: true,
+    redirect: false,
+  });
 
   // REST API spec
   // https://en.wikipedia.org/api/rest_v1/#/
 
   console.log("resPage:", resPage);
-  console.log("resPage.links:", await resPage.links());
-  console.log("resPage.intro:", await resPage.intro());
+  // console.log("resPage.links:", await resPage.links());
+  // console.log("resPage.intro:", await resPage.intro());
 
   // consider showing the infobox
   // console.log("resPage.infobox:", await resPage.infobox({autoSuggest: true}));
@@ -74,17 +92,32 @@ async function page(query: string) {
   // console.log("resPage.content:", await resPage.content());
 
   // the "/related" route is experimental!
-  // console.log("resPage.related:", await resPage.related());
-  
+  const related = await resPage.related();
+  console.log("resPage.related:", related);
+
   // useless?
   // console.log("resPage.references:", await resPage.references());
   // console.log("resPage.categories:", await resPage.categories());
 
-  return resPage
+  return resPage;
+}
+
+async function getResponse(query: string) {
+  const resPage = await page(query);
+  const related = (await resPage.related()).pages;
+
+  return related;
+}
+
+function getItemId(item: relatedResult["pages"][number]) {
+  return item.titles.normalized;
 }
 
 export const apiClient = {
   suggest,
   suggestCustom,
-  page
-}
+  page,
+
+  getResponse,
+  getItemId,
+};

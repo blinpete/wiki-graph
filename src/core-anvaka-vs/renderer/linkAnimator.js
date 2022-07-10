@@ -1,8 +1,9 @@
 /**
  * This file is responsible for animating edges when nodes positions are known.
  */
-let svg = require('simplesvg');
-let random = require('ngraph.random')(42);
+import ngRandom from 'ngraph.random'
+import svg from 'simplesvg';
+let random = ngRandom(42);
 
 export default function createLinkAnimator(graph, layout, edgeContainer) {
   const links = new Map();
@@ -35,7 +36,7 @@ export default function createLinkAnimator(graph, layout, edgeContainer) {
       beingAnimated.set(link.id, animateLink(link, speed));
     }
 
-    beingAnimated.forEach(function(el, key) {
+    beingAnimated.forEach(function (el, key) {
       el.step();
       if (el.isDone) beingAnimated.delete(key);
     });
@@ -51,8 +52,8 @@ export default function createLinkAnimator(graph, layout, edgeContainer) {
   function getLinkScore(link) {
     let fromNode = graph.getNode(link.fromId).data;
     let toNode = graph.getNode(link.toId).data;
-    const depth = (fromNode.depth + toNode.depth)/2;
-    return (maxDepth - depth)/maxDepth;
+    const depth = (fromNode.depth + toNode.depth) / 2;
+    return (maxDepth - depth) / maxDepth;
   }
 
   function scheduleLink(link) {
@@ -75,7 +76,7 @@ export default function createLinkAnimator(graph, layout, edgeContainer) {
     return api;
 
     function step() {
-      let t = ease(frame/maxT);
+      let t = ease(frame / maxT);
       let x = from.x * (1 - t) + to.x * t;
       let y = from.y * (1 - t) + to.y * t;
       let linkInfo = links.get(link.id);
@@ -87,11 +88,11 @@ export default function createLinkAnimator(graph, layout, edgeContainer) {
           'stroke-width': strokeWidth,
           fill: 'black',
           stroke: `rgb(${color}, ${color}, ${color})`,
-          d: pathData 
+          d: pathData
         });
         edgeContainer.appendChild(ui);
 
-        links.set(link.id, {ui, link});
+        links.set(link.id, { ui, link });
       } else {
         linkInfo.ui.attr('d', pathData);
       }
@@ -104,5 +105,5 @@ export default function createLinkAnimator(graph, layout, edgeContainer) {
 }
 
 function ease(t) {
-  return t*(2-t);
+  return t * (2 - t);
 }

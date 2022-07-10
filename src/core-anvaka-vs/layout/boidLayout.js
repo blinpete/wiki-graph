@@ -1,11 +1,12 @@
-import {Flock, Boid} from './flock';
-let createRandom = require('ngraph.random');
+import { Flock, Boid } from './flock';
+import ngRandom from 'ngraph.random'
 
 export default function createFakeLayout(graph) {
   let nodes = new Map();
-  let random = createRandom(42);
+  let random = ngRandom(42);
+
   const flock = new Flock(graph);
-  
+
   return {
     addNode,
     getNodePosition,
@@ -28,7 +29,7 @@ export default function createFakeLayout(graph) {
     let pos = nodes.get(nodeId)
     if (!pos) {
       pos = addNode(nodeId);
-    } 
+    }
     return pos.position;
   }
 

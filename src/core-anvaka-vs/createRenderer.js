@@ -4,11 +4,11 @@
 import createPanZoom from 'panzoom';
 import createTextMeasure from './measureText';
 import createAggregateLayout from './aggregateLayout';
-import bus from '../bus';
+import bus from './bus';
 import createLinkAnimator from './renderer/linkAnimator';
 import buildLinkIndex from './buildLinkIndex';
 
-let svg = require('simplesvg');
+import svg from 'simplesvg';
 
 /**
  * Creates a new renderer. The rendering is done with SVG.
@@ -17,11 +17,11 @@ export default function createRenderer(progress) {
   const scene = document.querySelector('#scene');
   const nodeContainer = scene.querySelector('#nodes');
   const edgeContainer = scene.querySelector('#edges');
-  const hideTooltipArgs = {isVisible: false};
+  const hideTooltipArgs = { isVisible: false };
   const svgEl = document.querySelector('svg');
   const pt = svgEl.createSVGPoint();
   const panzoom = createPanZoom(scene);
-  const defaultRectangle = {left: -500, right: 500, top: -500, bottom: 500}
+  const defaultRectangle = { left: -500, right: 500, top: -500, bottom: 500 }
   panzoom.showRectangle(defaultRectangle);
 
   // maps node id to node ui
@@ -62,7 +62,7 @@ export default function createRenderer(progress) {
 
   function onSceneClick(e) {
     let info = findLinkInfoFromEvent(e);
-    if (info)  {
+    if (info) {
       bus.fire('show-details', info.link);
     }
   }
@@ -78,11 +78,11 @@ export default function createRenderer(progress) {
   }
 
   function showTooltip(minLink, clientX, clientY) {
-    const {fromId, toId} = minLink.link;
+    const { fromId, toId } = minLink.link;
     bus.fire('show-tooltip', {
       isVisible: true,
-      from: fromId, 
-      to: toId, 
+      from: fromId,
+      to: toId,
       x: clientX,
       y: clientY
     });
@@ -112,7 +112,7 @@ export default function createRenderer(progress) {
     graph = newGraph;
 
     layout = createAggregateLayout(graph, progress);
-    
+
     layout.on('ready', drawLinks);
 
     nodes = new Map();
@@ -177,12 +177,12 @@ export default function createRenderer(progress) {
 
   function clear(el) {
     while (el.lastChild) {
-        el.removeChild(el.lastChild);
+      el.removeChild(el.lastChild);
     }
   }
 
   function addNode(node) {
-    const dRatio = (graph.maxDepth - node.data.depth)/graph.maxDepth;
+    const dRatio = (graph.maxDepth - node.data.depth) / graph.maxDepth;
     let pos = getNodePosition(node.id);
     if (node.data.depth === 0) {
       layout.pinNode(node);
@@ -199,7 +199,7 @@ export default function createRenderer(progress) {
       rx: uiAttributes.rx,
       ry: uiAttributes.ry,
       fill: 'white',
-      'stroke-width': uiAttributes.strokeWidth, 
+      'stroke-width': uiAttributes.strokeWidth,
       stroke: '#58585A'
     }
     const textAttributes = {
@@ -207,7 +207,7 @@ export default function createRenderer(progress) {
       x: uiAttributes.px,
       y: uiAttributes.py
     }
-    
+
     const rect = svg('rect', rectAttributes);
     const text = svg('text', textAttributes)
     text.text(node.id);
@@ -233,12 +233,12 @@ export default function createRenderer(progress) {
       fontSize,
       width,
       height,
-      x: -width/2,
-      y: -height/2,
+      x: -width / 2,
+      y: -height / 2,
       rx: 15 * dRatio + 2,
       ry: 15 * dRatio + 2,
-      px: -width/2 + size.spaceWidth*3,
-      py: -height/2 + fontSize * 1.1,
+      px: -width / 2 + size.spaceWidth * 3,
+      py: -height / 2 + fontSize * 1.1,
       strokeWidth: 4 * dRatio + 1
     };
   }

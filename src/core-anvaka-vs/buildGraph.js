@@ -1,9 +1,11 @@
-import bus from "../bus";
+import bus from "./bus";
+import createGraph from "ngraph.graph";
+
 
 /**
  * This function builds a graph from google's auto-suggestions.
  */
-export default function buildGraph(entryWord, getResponse, MAX_DEPTH, progress) {
+export default function buildGraph(entryWord, getResponse, getItemId, MAX_DEPTH, progress) {
   console.log(
     "🚀 buildGraph: entryWord, MAX_DEPTH, progress",
     entryWord,
@@ -17,7 +19,7 @@ export default function buildGraph(entryWord, getResponse, MAX_DEPTH, progress) 
 
   let cancelled = false;
   let pendingResponse;
-  let graph = require("ngraph.graph")();
+  let graph = createGraph();
   graph.maxDepth = MAX_DEPTH;
   let queue = [];
   let requestDelay = 300 + Math.random() * 100;
@@ -52,7 +54,9 @@ export default function buildGraph(entryWord, getResponse, MAX_DEPTH, progress) 
       throw new Error("Parent is missing for " + parent);
     }
 
-    results.forEach(other => {
+    results.forEach(r => {
+      const other = getItemId(r)
+
       const hasOtherNode = graph.hasNode(other);
       const hasOtherLink =
         graph.getLink(other, parent) || graph.getLink(parent, other);

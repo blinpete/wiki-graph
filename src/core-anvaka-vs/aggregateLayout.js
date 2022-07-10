@@ -15,9 +15,9 @@ import createInterpolateLayout from './createInterpolateLayout';
 import removeOverlaps from './layout/removeOverlaps';
 import Rect from './layout/Rect';
 
-let eventify = require('ngraph.events');
+import eventify from 'ngraph.events';
 
-let createLayout = require('ngraph.forcelayout')
+import createLayout from 'ngraph.forcelayout';
 
 const USE_FAKE = 1;
 const USE_INTERPOLATE = 2;
@@ -84,10 +84,10 @@ export default function createAggregateLayout(graph, progress) {
         layoutIterations += 1;
       } while (window.performance.now() - start < 10)
       layoutTime += window.performance.now() - start;
-      
+
 
       if (layoutTime > maxLayoutTime) layoutIterations = maxLayoutIterations;
-      const finished = Math.min(1, Math.max(layoutTime/maxLayoutTime, layoutIterations/maxLayoutIterations));
+      const finished = Math.min(1, Math.max(layoutTime / maxLayoutTime, layoutIterations / maxLayoutIterations));
       syncLayouts();
 
       progress.setLayoutCompletion(Math.round(finished * 100));
@@ -107,7 +107,7 @@ export default function createAggregateLayout(graph, progress) {
         api.fire('ready', api);
       }
       return true;
-    } 
+    }
 
     return false;
   }
@@ -134,9 +134,9 @@ export default function createAggregateLayout(graph, progress) {
     let rects = new Map();
     rectangles.forEach((rect, id) => {
       let pos = physicsLayout.getNodePosition(id);
-      let {width, height} = rect;
+      let { width, height } = rect;
       const inflatedRect = new Rect({
-        id, 
+        id,
         left: pos.x + rect.x,
         top: pos.y + rect.y,
         dx: rect.x,
@@ -166,7 +166,7 @@ export default function createAggregateLayout(graph, progress) {
         let links = graph.getLinks(nodeId);
         let mul = links ? links.length : 1;
         let node = graph.getNode(nodeId);
-        mul *=  (MAX_DEPTH - node.data.depth) + 1;
+        mul *= (MAX_DEPTH - node.data.depth) + 1;
         return nodeId.length * mul;
       }
     });

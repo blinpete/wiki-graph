@@ -2,7 +2,9 @@ import { Vector } from './Vector';
 
 // https://processing.org/examples/flocking.html
 
-var random = require('ngraph.random')(45);
+import ngRandom from 'ngraph.random'
+
+var random = ngRandom(45);
 
 export class Flock {
   constructor(graph) {
@@ -16,7 +18,7 @@ export class Flock {
     let boids = this.boids;
     boids.forEach((boid, nodeId) => {
       let neighbors = [];
-      this.graph.forEachLinkedNode(nodeId, function(other) {
+      this.graph.forEachLinkedNode(nodeId, function (other) {
         let otherBoid = boids.get(other.id);
         if (otherBoid) neighbors.push(otherBoid);
       })
@@ -103,7 +105,7 @@ export class Boid {
     // Scale to maximum speed
     desired.normalize();
     desired.mult(this.maxspeed);
- 
+
     // Steering = Desired minus Velocity
     let steer = Vector.sub(desired, this.velocity);
     steer.limit(this.maxforce * 1);  // Limit to maximum steering force
@@ -169,7 +171,7 @@ export class Boid {
       let steer = Vector.sub(sum, this.velocity);
       steer.limit(this.maxforce);
       return steer;
-    } 
+    }
     else {
       return new Vector(0, 0);
     }
@@ -192,7 +194,7 @@ export class Boid {
     if (count > 0) {
       sum.div(count);
       return this.seek(sum);  // Steer towards the position
-    } 
+    }
     else {
       return new Vector(0, 0);
     }

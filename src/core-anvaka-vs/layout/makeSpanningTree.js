@@ -1,4 +1,4 @@
-const createGraph = require('ngraph.graph')
+import createGraph from 'ngraph.graph'
 
 export default function makeSpanningTree(mstEdges) {
   const graph = createGraph();

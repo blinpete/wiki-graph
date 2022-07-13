@@ -15,7 +15,7 @@ export default function buildGraph(entryWord, getResponse, getItemId, MAX_DEPTH,
   entryWord = entryWord && entryWord.trim();
   if (!entryWord) return;
 
-  entryWord = entryWord.toLocaleLowerCase();
+  // entryWord = entryWord.toLocaleLowerCase();
 
   let cancelled = false;
   let pendingResponse;
@@ -47,7 +47,6 @@ export default function buildGraph(entryWord, getResponse, getItemId, MAX_DEPTH,
   }
 
   function loadSiblings(parent, results) {
-    console.log("🚀 loadSiblings: parent, results", parent, results);
     var parentNode = graph.getNode(parent);
 
     if (!parentNode) {
@@ -83,9 +82,11 @@ export default function buildGraph(entryWord, getResponse, getItemId, MAX_DEPTH,
       return;
     }
 
-    let nextWord = queue.shift();
-    fetchNext(nextWord);
-    progress.updateLayout(queue.length, nextWord);
+    while (queue.length > 0) {
+      let nextWord = queue.shift();
+      fetchNext(nextWord);
+      progress.updateLayout(queue.length, nextWord);
+    }
   }
 
   function fetchNext(query) {

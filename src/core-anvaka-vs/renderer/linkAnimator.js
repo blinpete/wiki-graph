@@ -32,7 +32,7 @@ export default function createLinkAnimator(graph, layout, edgeContainer) {
   function processNext() {
     while (beingAnimated.size < maxAnimations && scheduled.length > 0) {
       let link = scheduled.pop()
-      let speed = Math.round(Math.abs(random.gaussian() * 30)) + 1
+      let speed = Math.round(Math.abs(random.gaussian() * 10)) + 1
       beingAnimated.set(link.id, animateLink(link, speed));
     }
 

@@ -36,10 +36,6 @@
 
 <main>
   <WikiSearch on:search="{onSearch}"/>
-
-  <p style="position: absolute; bottom: 0;">
-    <a href="https://svelte.dev/docs">svelte.dev/docs</a>
-  </p>
 </main>
 
 
@@ -59,6 +55,5 @@
   :global(#app) {
     position: absolute;
     z-index: 10;
-    height: 100%;
   }
 </style>

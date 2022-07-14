@@ -78,7 +78,8 @@ async function page(query: string) {
   // REST API spec
   // https://en.wikipedia.org/api/rest_v1/#/
 
-  console.log("resPage:", resPage);
+  // console.log("resPage:", resPage);
+
   // console.log("resPage.links:", await resPage.links());
   // console.log("resPage.intro:", await resPage.intro());
 
@@ -92,21 +93,16 @@ async function page(query: string) {
   // console.log("resPage.content:", await resPage.content());
 
   // the "/related" route is experimental!
-  const related = await resPage.related();
-  console.log("resPage.related:", related);
-
-  // useless?
-  // console.log("resPage.references:", await resPage.references());
-  // console.log("resPage.categories:", await resPage.categories());
+  // const related = await resPage.related();
+  // console.log("resPage.related:", related);
 
   return resPage;
 }
 
 async function getResponse(query: string) {
-  const resPage = await page(query);
-  const related = (await resPage.related()).pages;
+  const related = await wiki.related(query);
 
-  return related;
+  return related.pages;
 }
 
 function getItemId(item: relatedResult["pages"][number]) {

@@ -42,7 +42,7 @@
   function onSelect(e: CustomEvent<SuggestionsCustom[number]>) {
     query = e.detail.title;
     suggestions = [];
-    search(e.detail.normalized);
+    search(e.detail.title);
   }
 
   $: isLoading = appState.progress.working

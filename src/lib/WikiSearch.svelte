@@ -2,7 +2,7 @@
   // https://www.wikipedia.org
 
 
-  import {appState} from "../core-anvaka-vs";
+  import {appState, setOnChange} from "../core-anvaka-vs";
 
   let query = appState.query;
 
@@ -44,6 +44,20 @@
     suggestions = [];
     search(e.detail.normalized);
   }
+
+  $: isLoading = appState.progress.working
+  $: message = appState.progress.message
+
+  type AppState = typeof appState
+  setOnChange((target: typeof appState, prop: keyof AppState, val: any) => {
+    // console.log('[onChange] prop|val:', prop, val);
+    switch(prop) {
+      case 'message':
+        message = val
+      case 'working':
+        isLoading = val
+    }
+  })
 </script>
 
 <div class="input-box">
@@ -55,6 +69,13 @@
     on:keyup={onKeyup}
   />
   <Suggestions {suggestions} on:select={onSelect} />
+  <div class="progress-info">{
+    isLoading
+    ? message
+    : query
+    ? 'This graph was made from Wikipedia.'
+    : 'Explore human knowledge..'
+  }</div>  
 </div>
 
 <style>
@@ -79,5 +100,13 @@
   input:focus::placeholder {
     /* border-color: var(--borderFocusColor); */
     visibility: hidden;
+  }
+
+  .progress-info {
+    font-size: small;
+    padding: 0.2em 0.4em;
+    background-color: #fff;
+    opacity: 0.8;
+    width: max-content;
   }
 </style>

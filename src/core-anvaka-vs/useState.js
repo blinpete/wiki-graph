@@ -17,14 +17,47 @@ const qs = queryState(
 const appStateFromQuery = qs.get();
 // console.log('[appState] appStateFromQuery:', appStateFromQuery);
 
-// TODO: state should be a Proxy
-const appState = {
+let onChange
+
+/**
+ * `dep inj`
+ * 
+ * Sets `onChange` callback which gets called on `appState` change.
+ * 
+ * @param f `(target: appState, prop: keyof typeof appState, val: (typeof appState)[string]) => any`
+ */
+function setOnChange(f) {
+  onChange = f
+}
+
+function wrapWithProxy(obj) {
+
+  // dive
+  for (const k in obj) {
+    if (typeof obj[k] === 'object' && obj[k] != null) {
+      obj[k] = wrapWithProxy(obj[k])
+    }
+  }
+
+  return new Proxy(
+    obj,
+    {
+      set(target, prop, val, receiver) {
+        if (onChange) onChange(target, prop, val)
+
+        return Reflect.set(target, prop, val, receiver)
+      }
+    }
+  )
+}
+
+const appState = wrapWithProxy({
   hasGraph: false,
   maxDepth: appStateFromQuery.maxDepth || 2,
   progress: new Progress(),
   graph: null,
   query: appStateFromQuery.query,
-};
+});
 
 qs.onChange(updateAppState);
 
@@ -56,6 +89,9 @@ function performSearch(queryString) {
   return lastBuilder.graph;
 }
 
+/**
+ * Dependency injection.
+ */
 function setApiClient(value) {
   apiClient = value
 }
@@ -64,8 +100,5 @@ export {
   appState,
   performSearch,
   setApiClient,
+  setOnChange,
 }
-
-// if (appState.query) {
-//   performSearch(appState.query);
-// }

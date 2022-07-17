@@ -64,6 +64,7 @@
   <input
     type="text"
     name="Wiki Search input"
+    autocomplete="off"
     placeholder="start wiki search..."
     bind:value={query}
     on:keyup={onKeyup}

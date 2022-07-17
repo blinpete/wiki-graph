@@ -23,6 +23,8 @@
     padding: 10px;
     margin: 0;
 
+    background-color: #fff;
+
     border: 2px solid var(--borderColor);
     border-top: 0;
 

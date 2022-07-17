@@ -32,6 +32,7 @@
 
     if (e.key === "Enter") {
       search(q);
+      suggestions = []
       return;
     }
 

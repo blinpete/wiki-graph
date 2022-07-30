@@ -149,10 +149,12 @@ export default function createRenderer(progress) {
   function drawLinks() {
     progress.done();
     linkAnimator = createLinkAnimator(graph, layout, edgeContainer);
-    document.addEventListener('mousemove', onMouseMove);
-    svgEl.addEventListener('click', onSceneClick);
-    let radius = 42;
-    linkIndex = buildLinkIndex(graph, layout, radius);
+
+    // document.addEventListener('mousemove', onMouseMove);
+    // svgEl.addEventListener('click', onSceneClick);
+
+    // let radius = 42;
+    // linkIndex = buildLinkIndex(graph, layout, radius);
     // let points = linkIndex.getPoints();
     // points.forEach(point => {
     //   scene.appendChild(svg('circle', {
@@ -220,11 +222,59 @@ export default function createRenderer(progress) {
 
     nodeContainer.appendChild(ui);
     nodes.set(node.id, ui);
+
+    ui.addEventListener('mouseenter', e => onEnterNode(e, node))
+    ui.addEventListener('mouseleave', e => onLeaveNode(e, node))
+    ui.addEventListener('click', onNodeClick);
+  }
+
+  function onNodeClick(e, node) {
+    // console.log("🚀 ~ onNodeClick ~ e, node", e, node)
+    bus.fire('show-details-node', { node })
+  }
+
+  function onLeaveNode(e, node) {
+    // console.log("🚀 ~ onLeaveNode ~ node", node)
+    removeHighlight();
+
+    // tooltip
+    bus.fire('show-tooltip-node', { node: null })
+  }
+
+  function onEnterNode(e, node) {
+    // console.log("🚀 ~ onHoverNode ~ e", e.target)
+    // console.log("🚀 ~ onHoverNode ~ node", node)
+
+    const el = e.target
+    addHoveredClass(el)
+
+    if (node.links?.length) {
+      node.links.forEach(link => {
+        // console.log("🚀 ~ onHoverNode ~ link", link)
+        const linkObj = linkAnimator.getLinkInfo(link.id)
+        addHoveredClass(linkObj.ui)
+
+        const linkedId = link.fromId !== node.id ? link.fromId : link.toId
+        const linkedNode = nodes.get(linkedId)
+        addHoveredClass(linkedNode)
+      })
+    }
+
+    function addHoveredClass(htmlEl) {
+      htmlEl.classList.add('hovered')
+    }
+
+    // tooltip
+    bus.fire('show-tooltip-node', {
+      node,
+      x: e.clientX,
+      y: e.clientY,
+    })
   }
 
 
   function getNodeUIAttributes(nodeId, dRatio) {
-    const fontSize = 24 * dRatio + 12;
+    const fontSize = 45 * dRatio + 14;
     const size = textMeasure(nodeId, fontSize);
     const width = size.totalWidth + size.spaceWidth * 6;
     const height = fontSize * 1.6;

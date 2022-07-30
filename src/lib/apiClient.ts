@@ -99,21 +99,34 @@ async function page(query: string) {
   return resPage;
 }
 
+async function getSummary(query: string) {
+  const summary = await wiki.summary(query);
+
+  return summary;
+}
+
 async function getResponse(query: string) {
   const related = await wiki.related(query);
 
   return related.pages;
 }
 
-function getItemId(item: relatedResult["pages"][number]) {
-  return item.titles.normalized;
+function getItem(item: relatedResult["pages"][number]) {
+  // TODO: replace with titles.display?
+  // return item.titles.normalized;
+
+  const { description, pageid, extract_html, originalimage, thumbnail } = item;
+  const data = { description, pageid, extract_html, originalimage, thumbnail };
+
+  return { id: item.titles.normalized, data };
 }
 
 export const apiClient = {
   suggest,
   suggestCustom,
   page,
+  getSummary,
 
   getResponse,
-  getItemId,
+  getItem,
 };

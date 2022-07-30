@@ -53,7 +53,7 @@ function wrapWithProxy(obj) {
 
 const appState = wrapWithProxy({
   hasGraph: false,
-  maxDepth: appStateFromQuery.maxDepth || 2,
+  maxDepth: appStateFromQuery.maxDepth || 1,
   progress: new Progress(),
   graph: null,
   query: appStateFromQuery.query,
@@ -65,21 +65,21 @@ function updateAppState(newState) {
   appState.query = newState.query;
 }
 
-function performSearch(queryString) {
+function performSearch(entryItem) {
+  console.log("🚀 ~ performSearch ~ entryItem:", entryItem)
+
   appState.hasGraph = true;
   appState.progress.reset();
 
-  qs.set("query", queryString);
+  qs.set("query", entryItem.id);
   if (lastBuilder) {
     lastBuilder.dispose();
   }
 
-  console.log("apiClient:", apiClient);
-
   lastBuilder = buildGraph(
-    queryString,
+    entryItem,
     apiClient.getResponse,
-    apiClient.getItemId,
+    apiClient.getItem,
     appState.maxDepth,
     appState.progress
   );

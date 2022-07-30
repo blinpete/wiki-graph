@@ -5,17 +5,20 @@ import createGraph from "ngraph.graph";
 /**
  * This function builds a graph from google's auto-suggestions.
  */
-export default function buildGraph(entryWord, getResponse, getItemId, MAX_DEPTH, progress) {
+export default function buildGraph(entryItem, getResponse, getItem, MAX_DEPTH, progress) {
   console.log(
-    "🚀 buildGraph: entryWord, MAX_DEPTH, progress",
-    entryWord,
+    "🚀 buildGraph: entryItem, MAX_DEPTH, progress",
+    entryItem,
     MAX_DEPTH,
     progress
   );
-  entryWord = entryWord && entryWord.trim();
-  if (!entryWord) return;
 
-  // entryWord = entryWord.toLocaleLowerCase();
+  // empty item
+  if (!entryItem) return;
+
+  // empty item.id
+  entryItem.id = entryItem.id && entryItem.id.trim();
+  if (!entryItem.id) return;
 
   let cancelled = false;
   let pendingResponse;
@@ -42,8 +45,8 @@ export default function buildGraph(entryWord, getResponse, getItemId, MAX_DEPTH,
   }
 
   function startQueryConstruction() {
-    graph.addNode(entryWord, { depth: 0 });
-    fetchNext(entryWord);
+    graph.addNode(entryItem.id, { depth: 0, ...entryItem.data });
+    fetchNext(entryItem.id);
   }
 
   function loadSiblings(parent, results) {
@@ -54,22 +57,22 @@ export default function buildGraph(entryWord, getResponse, getItemId, MAX_DEPTH,
     }
 
     results.forEach(r => {
-      const other = getItemId(r)
+      const other = getItem(r)
 
-      const hasOtherNode = graph.hasNode(other);
+      const hasOtherNode = graph.hasNode(other.id);
       const hasOtherLink =
-        graph.getLink(other, parent) || graph.getLink(parent, other);
+        graph.getLink(other.id, parent) || graph.getLink(parent, other.id);
       if (hasOtherNode) {
         if (!hasOtherLink) {
-          graph.addLink(parent, other);
+          graph.addLink(parent, other.id);
         }
         return;
       }
 
       let depth = parentNode.data.depth + 1;
-      graph.addNode(other, { depth });
-      graph.addLink(parent, other);
-      if (depth < MAX_DEPTH) queue.push(other);
+      graph.addNode(other.id, { depth, ...other.data });
+      graph.addLink(parent, other.id);
+      if (depth < MAX_DEPTH) queue.push(other.id);
     });
 
     setTimeout(loadNext, requestDelay);

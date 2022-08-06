@@ -84,9 +84,20 @@
   }
   
   bus.on('show-tooltip-node', showTooltipNode, {});
-  // --------------------------------------------------
 
 
+  // --------------------------------------- node click
+  function onNodeClick(e) {
+    console.log("🚀 ~ onNodeClick ~ e", e)
+    window.open(e.node.data.page_url)
+    // window.open(e.node.data.page_url, '_blank')
+
+  }
+
+  bus.on('show-details-node', onNodeClick, {});
+  
+  
+  // --------------------------------------- functions
   async function onSearch(e: CustomEvent) {
     const q = e.detail
     console.log('[onSearch] query:', q);

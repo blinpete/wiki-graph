@@ -1,8 +1,13 @@
 import wiki, { relatedResult } from "wikipedia";
 
-export function resolveQueryFromLink(from, to) {
-  const pattern = "[query] vs ...";
-  return pattern.replace("[query]", from).replace("...", to);
+// https://dev.to/timhuang/a-simple-way-to-detect-if-browser-is-on-a-mobile-device-with-javascript-44j3
+let isMobile = false;
+if (
+  /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+    navigator.userAgent
+  )
+) {
+  isMobile = true;
 }
 
 // ------------------------------------------------------------ //
@@ -115,8 +120,27 @@ function getItem(item: relatedResult["pages"][number]) {
   // TODO: replace with titles.display?
   // return item.titles.normalized;
 
-  const { description, pageid, extract_html, originalimage, thumbnail } = item;
-  const data = { description, pageid, extract_html, originalimage, thumbnail };
+  const {
+    description,
+    pageid,
+    extract_html,
+    originalimage,
+    thumbnail,
+    content_urls,
+  } = item;
+
+  const page_url = isMobile
+    ? content_urls.mobile.page
+    : content_urls.desktop.page;
+
+  const data = {
+    description,
+    pageid,
+    extract_html,
+    originalimage,
+    thumbnail,
+    page_url,
+  };
 
   return { id: item.titles.normalized, data };
 }

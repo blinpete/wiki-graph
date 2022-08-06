@@ -225,7 +225,7 @@ export default function createRenderer(progress) {
 
     ui.addEventListener('mouseenter', e => onEnterNode(e, node))
     ui.addEventListener('mouseleave', e => onLeaveNode(e, node))
-    ui.addEventListener('click', onNodeClick);
+    ui.addEventListener('click', e => onNodeClick(e, node));
   }
 
   function onNodeClick(e, node) {

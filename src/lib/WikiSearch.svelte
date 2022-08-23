@@ -1,8 +1,7 @@
 <script lang="ts">
   // https://www.wikipedia.org
 
-
-  import {appState, setOnChange} from "../core-anvaka-vs";
+  import {appState, watchState} from "./state";
 
   let query = appState.query;
 
@@ -50,7 +49,7 @@
   $: message = appState.progress.message
 
   type AppState = typeof appState
-  setOnChange((target: typeof appState, prop: keyof AppState, val: any) => {
+  watchState((target: typeof appState, prop: keyof AppState, val: any) => {
     // console.log('[onChange] prop|val:', prop, val);
     switch(prop) {
       case 'message':

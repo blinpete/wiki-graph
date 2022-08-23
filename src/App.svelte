@@ -2,10 +2,11 @@
   import WikiSearch from "./lib/WikiSearch.svelte";
   
   import { bus, createRenderer } from "./core-anvaka-vs";
-  import {appState, performSearch, setApiClient} from "./core-anvaka-vs";
+  import { appState, performSearch } from "./lib/state";
   import { apiClient } from "./lib/apiClient";
 
-  setApiClient(apiClient)
+  apiClient.loadLangs()
+
   console.log('[App] appState:', appState)
 
 

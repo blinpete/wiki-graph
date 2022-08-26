@@ -9,6 +9,7 @@
 
   import { apiClient, type SuggestionsCustom } from "./apiClient";
   import Suggestions from "./Suggestions.svelte";
+  import LanguageSelect from "./LanguageSelect.svelte";
   
   import { createEventDispatcher } from "svelte";
   const dispatch = createEventDispatcher()
@@ -61,14 +62,18 @@
 </script>
 
 <div class="input-box">
-  <input
-    type="text"
-    name="Wiki Search input"
-    autocomplete="off"
-    placeholder="start wiki search..."
-    bind:value={query}
-    on:keyup={onKeyup}
-  />
+  <div class="input-wrapper">
+    <input
+      type="text"
+      name="Wiki Search input"
+      autocomplete="off"
+      placeholder="start wiki search..."
+      bind:value={query}
+      on:keyup={onKeyup}
+    />
+    <LanguageSelect/>
+  </div>
+
   <Suggestions {suggestions} on:select={onSelect} />
   <div class="progress-info">{
     isLoading
@@ -84,6 +89,10 @@
     display: flex;
     flex-direction: column;
     width: fit-content;
+  }
+
+  .input-wrapper {
+    position: relative;
   }
 
   input {

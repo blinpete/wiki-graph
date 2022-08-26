@@ -9,8 +9,8 @@ export function useState(apiClient, extraState) {
 
   const qs = queryState(
     {
+      ...extraState,
       query: "",
-      ...extraState
     },
     {
       useSearch: true
@@ -55,6 +55,10 @@ export function useState(apiClient, extraState) {
 
           console.log('[Proxy:appState] prop,val:', prop, val);
 
+          if (Object.prototype.hasOwnProperty.call(appStateFromQuery, prop)) {
+            qs.set(prop, val)
+          }
+
           return Reflect.set(target, prop, val, receiver)
         }
       }
@@ -63,13 +67,17 @@ export function useState(apiClient, extraState) {
 
   const appState = wrapWithProxy({
     hasGraph: false,
-    maxDepth: appStateFromQuery.maxDepth || 1,
     progress: new Progress(),
     graph: null,
-    query: appStateFromQuery.query,
+    ...appStateFromQuery
   });
 
+  if (!appState.maxDepth) {
+    appState.maxDepth = 1
+  }
+
   qs.onChange(updateAppState);
+  console.log('[] qs = ', qs);
 
   function updateAppState(newState) {
     // TODO: does it work?

@@ -1,4 +1,6 @@
-import wiki, { relatedResult } from "wikipedia";
+import { writable } from "svelte/store";
+import wiki, { languageResult, relatedResult } from "wikipedia";
+import { appState } from "./state";
 
 // https://dev.to/timhuang/a-simple-way-to-detect-if-browser-is-on-a-mobile-device-with-javascript-44j3
 let isMobile = false;
@@ -8,6 +10,10 @@ if (
   )
 ) {
   isMobile = true;
+}
+
+function __minimizeUrl(url: string) {
+  return url.replaceAll(/\n\s*/g, "");
 }
 
 // ------------------------------------------------------------ //
@@ -29,15 +35,15 @@ async function suggest(query: string) {
 }
 
 const getUrlSuggest = (query) =>
-  `
-  https://en.wikipedia.org/w/api.php
+  __minimizeUrl(`
+  https://${appState.lang}.wikipedia.org/w/api.php
   ?action=opensearch
   &format=json
   &formatversion=2
   &search=${query}
   &namespace=0
   &limit=10
-  &origin=*`.replaceAll(/\n\s*/g, "");
+  &origin=*`);
 
 /**
  * Uses `Legacy Wikipedia API - api.php`
@@ -145,6 +151,41 @@ function getItem(item: relatedResult["pages"][number]) {
   return { id: item.titles.normalized, data };
 }
 
+// ------------------------------------------------------------ //
+//                          Languages                          //
+// -----------------------------------------------------------//
+
+let languages = writable<languageResult[]>(null);
+
+// Note: here lang=en since the response is the same for any lang
+const loadLangsUrl = __minimizeUrl(`
+https://en.wikipedia.org/w/api.php
+?meta=siteinfo
+&siprop=languages
+&format=json
+&redirects=
+&action=query
+&origin=*`);
+
+async function loadLangs() {
+  // if (languages) return;
+  // const langs = await wiki.languages();
+
+  const response = await fetch(loadLangsUrl);
+
+  if (!response.ok) return;
+
+  const langs = (await response.json()).query.languages as languageResult[];
+
+  languages.set(langs);
+}
+
+function setLang(language: string) {
+  // validation
+
+  wiki.setLang(language);
+}
+
 export const apiClient = {
   suggest,
   suggestCustom,
@@ -153,4 +194,8 @@ export const apiClient = {
 
   getResponse,
   getItem,
+
+  languages,
+  loadLangs,
+  setLang,
 };

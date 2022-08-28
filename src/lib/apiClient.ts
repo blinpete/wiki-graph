@@ -155,30 +155,30 @@ function getItem(item: relatedResult["pages"][number]) {
 //                          Languages                          //
 // -----------------------------------------------------------//
 
-let languages = writable<languageResult[]>(null);
+// let languages = writable<languageResult[]>(null);
 
-// Note: here lang=en since the response is the same for any lang
-const loadLangsUrl = __minimizeUrl(`
-https://en.wikipedia.org/w/api.php
-?meta=siteinfo
-&siprop=languages
-&format=json
-&redirects=
-&action=query
-&origin=*`);
+// // Note: here lang=en since the response is the same for any lang
+// const loadLangsUrl = __minimizeUrl(`
+// https://en.wikipedia.org/w/api.php
+// ?meta=siteinfo
+// &siprop=languages
+// &format=json
+// &redirects=
+// &action=query
+// &origin=*`);
 
-async function loadLangs() {
-  // if (languages) return;
-  // const langs = await wiki.languages();
+// async function loadLangs() {
+//   // if (languages) return;
+//   // const langs = await wiki.languages();
 
-  const response = await fetch(loadLangsUrl);
+//   const response = await fetch(loadLangsUrl);
 
-  if (!response.ok) return;
+//   if (!response.ok) return;
 
-  const langs = (await response.json()).query.languages as languageResult[];
+//   const langs = (await response.json()).query.languages as languageResult[];
 
-  languages.set(langs);
-}
+//   languages.set(langs);
+// }
 
 function setLang(language: string) {
   // validation
@@ -195,7 +195,7 @@ export const apiClient = {
   getResponse,
   getItem,
 
-  languages,
-  loadLangs,
+  // languages,
+  // loadLangs,
   setLang,
 };

@@ -5,10 +5,7 @@
   import { appState, performSearch } from "./lib/state";
   import { apiClient } from "./lib/apiClient";
 
-  apiClient.loadLangs()
-
   console.log('[App] appState:', appState)
-
 
   const renderer = createRenderer(appState.progress);
 
@@ -135,6 +132,8 @@
   :root {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
       Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+
+    font-size: 80%;
 
     --borderColor: #ccc;
     --borderFocusColor: #aaa;

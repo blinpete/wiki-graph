@@ -7,6 +7,24 @@
 
   console.log('[App] appState:', appState)
 
+  // ------------------------------------------ language
+  /**
+   * can't do this in useState
+   * (core-anvaka-vs module doesn't know about apiClient.setLang method)
+   * 
+   * so setting a language here.
+   * 
+   * Use case:
+   *  1. first load
+   *  2. collect appState from url
+   *  3. performSearch if query isn't empty (to this moment `lang` should be properly set)
+   */
+  
+  const DEFAULT_LANG = 'en'
+  apiClient.setLang(appState.lang || DEFAULT_LANG)
+  // ---------------------------------------------------
+
+
   const renderer = createRenderer(appState.progress);
 
   if (appState.query) {

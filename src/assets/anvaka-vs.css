@@ -23,9 +23,18 @@ svg {
 #scene {
   pointer-events: all;
 }
-svg path.link-ui {
+
+#nodes > g {
   cursor: pointer;
 }
+
+#nodes > g.hovered > rect,
+#edges > path.link-ui.hovered {
+  stroke: rgb(202, 118, 143);
+  fill: rgb(211, 154, 171);
+  transition: fill 100ms, stroke 100ms;
+}
+
 svg text {
   font-family: "Roboto", arial, sans-serif;
 }

@@ -1,0 +1,33 @@
+/* tooltip */
+#tooltip {
+  z-index: 20;
+  position: absolute;
+
+  &[hidden] {
+    display: none;
+  }
+
+  border: 2px solid #ddd;
+
+  display: flex;
+  flex-direction: row;
+
+  & .text {
+    background-color: #eee;
+    padding: 0.5em 1em;
+
+    overflow-y: auto;
+
+    flex: 1 1 auto;
+  }
+
+  /* width: min(300px, 30vw); */
+  width: 400px;
+  & img {
+    max-width: 50%;
+    height: auto;
+    object-fit: cover;
+  }
+
+  max-height: min(500px, 50vh);
+}

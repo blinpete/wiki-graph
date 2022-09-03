@@ -42,7 +42,7 @@
   let tooltipEl
   let hidingTimer: NodeJS.Timeout
 
-  const ttWidth = 300
+  const ttWidth = 400
   const ttHeight = 500
 
   function scheduleHide() {
@@ -72,9 +72,11 @@
 
     // TODO: should sanitize?
     // https://developer.mozilla.org/en-US/docs/Web/API/HTML_Sanitizer_API
-    const {thumbnail, extract_html} = e.node.data
-    tooltipHTML = thumbnail ? `<img src="${thumbnail.source}" style="width: 100%;"/>` : ''
-    tooltipHTML += extract_html
+    const {thumbnail, extract_html, page_url} = e.node.data
+    tooltipHTML = thumbnail ? `<img src="${thumbnail.source}" />` : ''
+
+    const fallbackText = `Can't find a preview. See <a href="${page_url}">the original article</a>`
+    tooltipHTML += `<div class="text">${extract_html || fallbackText}</div>`
 
     // reuse current tooltip
     // if (!isTooltipHidden) {
@@ -144,7 +146,7 @@
 
 
 <style lang="postcss">
-  @import './assets/anvaka-vs.css';
+  @import './assets/style.css';
   @import 'normalize.css';
 
   :root {
@@ -160,28 +162,5 @@
   :global(#app) {
     position: absolute;
     z-index: 10;
-  }
-
-  /* tooltip */
-  #tooltip {
-    z-index: 20;
-    position: absolute;
-
-    border: 2px solid #ddd;
-    /* pointer-events: none; */
-
-    background-color: #fff;
-
-    /* width: min(300px, 30vw); */
-    width: 300px;
-
-    max-height: min(500px, 50vh);
-    overflow-y: auto;
-
-    padding: 0.5em 1em;
-
-    /* & > img {
-      width: 100%;
-    } */
   }
 </style>

@@ -3,9 +3,10 @@
 
   import {appState, watchState} from "./state";
 
-  let query = appState.query;
+  let query: string = appState.query;
 
   let suggestions: SuggestionsCustom = [];
+  let selected = 0
 
   import { apiClient, type SuggestionsCustom } from "./apiClient";
   import Suggestions from "./Suggestions.svelte";
@@ -21,29 +22,71 @@
   }
 
   async function onKeyup(e: KeyboardEvent) {
+    // input catches keydown
+    // so this function should be `keyup` to get the current query
+
     console.log("keyup:", e);
 
     const q = query.trim();
+
     if (!q) {
       console.log("[onKeyup] empty query given!");
-      suggestions = [];
+      query = ""
+      dropSuggest()
+      return;
+    }
+
+    if (e.key === "Escape") {
+      dropSuggest()
       return;
     }
 
     if (e.key === "Enter") {
-      search(q);
-      suggestions = []
+      query = suggestions[selected]?.title || q
+
+      search(query);
+      dropSuggest()
       return;
     }
+
+    getSuggestions()
+  }
+
+  function handleArrows(e: KeyboardEvent) {
+    // this is `keydown` to support arrow long press
+
+    if (e.key === 'ArrowUp') {
+      e.preventDefault()
+
+      selected = selected ? selected-1 : suggestions.length-1
+      return;
+    }
+    
+    if (e.key === 'ArrowDown') {
+      e.preventDefault()
+
+      selected = selected === suggestions.length-1 ? 0 : selected+1
+      return;
+    }
+  }
+
+  async function getSuggestions() {
+    const q = query.trim()
+    if (!q) return
 
     // suggestions = await apiClient.suggest(q);
     suggestions = await apiClient.suggestCustom(q);
   }
 
-  function onSelect(e: CustomEvent<SuggestionsCustom[number]>) {
-    query = e.detail.title;
+  function onSelect(e: CustomEvent<number>) {
+    query = suggestions[e.detail]?.title;
+    search(query);
+    dropSuggest()
+  }
+
+  function dropSuggest() {
     suggestions = [];
-    search(e.detail.title);
+    selected = 0
   }
 
   $: isLoading = appState.progress.working
@@ -72,19 +115,21 @@
       placeholder="start wiki search..."
       bind:value={query}
       on:keyup={onKeyup}
+      on:keydown={handleArrows}
+      on:blur={dropSuggest}
       autofocus
     />
     <LanguageSelect/>
   </div>
 
-  <Suggestions {suggestions} on:select={onSelect} />
+  <Suggestions {suggestions} {selected} on:select={onSelect} />
   <div class="progress-info">{
     isLoading
       ? message
       : query
       ? 'This graph was made from Wikipedia.'
       : 'Explore human knowledge..'
-  }</div>  
+  }</div>
 </div>
 
 <style lang="postcss">
@@ -120,7 +165,7 @@
 
   input {
     font-size: 1.2rem;
-    min-width: 250px;
+    min-width: 280px;
     padding: 0.5em;
 
     margin: 2px;

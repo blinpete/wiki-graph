@@ -22,12 +22,12 @@
   .suggestions {
     padding: 10px;
     margin: 0;
+    z-index: 2;
 
     background-color: #fff;
 
     border: 2px solid var(--borderColor);
     border-top: 0;
-
     border-radius: 0 0 5px 5px;
 
     & li {

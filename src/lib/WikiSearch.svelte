@@ -57,6 +57,8 @@
         message = val
       case 'working':
         isLoading = val
+      default:
+        return
     }
   })
 </script>
@@ -70,6 +72,7 @@
       placeholder="start wiki search..."
       bind:value={query}
       on:keyup={onKeyup}
+      autofocus
     />
     <LanguageSelect/>
   </div>
@@ -77,46 +80,65 @@
   <Suggestions {suggestions} on:select={onSelect} />
   <div class="progress-info">{
     isLoading
-    ? message
-    : query
-    ? 'This graph was made from Wikipedia.'
-    : 'Explore human knowledge..'
+      ? message
+      : query
+      ? 'This graph was made from Wikipedia.'
+      : 'Explore human knowledge..'
   }</div>  
 </div>
 
-<style>
+<style lang="postcss">
   .input-box {
     display: flex;
     flex-direction: column;
     width: fit-content;
+
+    color: var(--textColor);
+
+    margin: 0.8em;
   }
 
   .input-wrapper {
     position: relative;
-  }
+    width: 100%;
 
-  input {
-    font-size: 1.4rem;
-    color: #444;
+    display: grid;
+    grid-template-columns: auto min-content;
+    align-items: center;
 
-    outline: none;
-
-    padding: 4px 10px 6px;
+    background-color: #fff;
 
     border: 2px solid var(--borderColor);
     /* border-radius: 5px 5px 0 0; */
+    box-shadow: inset 0 0 0 1px #fff;
+
+    &:focus-within {
+      border-color: #36c;
+      box-shadow: inset 0 0 0 1px #36c;
+    }
   }
 
-  input:focus::placeholder {
-    /* border-color: var(--borderFocusColor); */
-    visibility: hidden;
+  input {
+    font-size: 1.2rem;
+    min-width: 250px;
+    padding: 0.5em;
+
+    margin: 2px;
+
+    outline: none;
+    border: none;
+    color: inherit;
   }
+
 
   .progress-info {
     font-size: small;
     padding: 0.2em 0.4em;
+
     background-color: #fff;
-    opacity: 0.8;
+    opacity: 0.7;
     width: max-content;
+
+    color: var(--textColorMuted);
   }
 </style>

@@ -146,21 +146,7 @@
 
 
 <style lang="postcss">
+  /* order matters */
   @import './assets/style.css';
   @import 'normalize.css';
-
-  :root {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
-      Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
-
-    font-size: 80%;
-
-    --borderColor: #ccc;
-    --borderFocusColor: #aaa;
-  }
-
-  :global(#app) {
-    position: absolute;
-    z-index: 10;
-  }
 </style>

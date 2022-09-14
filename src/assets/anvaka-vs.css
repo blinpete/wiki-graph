@@ -38,3 +38,7 @@ svg {
 svg text {
   font-family: "Roboto", arial, sans-serif;
 }
+
+svg:focus {
+  outline: 0;
+}

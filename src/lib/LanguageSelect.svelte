@@ -113,14 +113,12 @@
 
 <style lang="postcss">
   .select-wrapper {
-    position: absolute;
-    right: 1em;
-
-    top: 50%;
-    transform: translateY(-52%);
+    position: relative;
 
     font-size: 0.85rem;
-    color: #54595d;
+
+    width: min-content;
+    margin: 0.5em;
 
     &:hover {
       /* from wikipedia.org */
@@ -165,6 +163,9 @@
     align-items: center;
     justify-content: space-between;
 
+    border: 1.4px solid transparent;
+
+
     & > :global(.icon) {
       height: 0.7em;
       width: 0.7em;
@@ -181,7 +182,6 @@
   }
 
   .select--real:focus ~ .select--fake {
-    border: 1px solid blue;
-    /* border-color: blue; */
+    border-color: blue;
   }
 </style>

@@ -159,8 +159,8 @@
     box-shadow: inset 0 0 0 1px #fff;
 
     &:focus-within {
-      border-color: #36c;
-      box-shadow: inset 0 0 0 1px #36c;
+      border-color: var(--c-accent);
+      box-shadow: inset 0 0 0 1px var(--c-accent);
     }
   }
 

@@ -12,6 +12,15 @@
   --textColorMuted: hsl(220, 5%, 50%);
   --borderColor: hsl(220, 10%, 88%);
   --borderFocusColor: #aaa;
+
+  /* wikipedia color */
+  /* --c-accent: hsl(220, 60%, 50%);
+  --c-accent-soft: hsl(220, 50%, 80%);
+  --c-secondary: hsl(220, 55%, 75%); */
+
+  --c-accent: hsl(342, 44%, 63%);
+  --c-accent-soft: hsl(344, 50%, 80%);
+  --c-secondary: hsl(342, 39%, 72%);
 }
 
 :global(#app) {

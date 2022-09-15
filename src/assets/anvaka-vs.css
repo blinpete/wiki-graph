@@ -30,8 +30,8 @@ svg {
 
 #nodes > g.hovered > rect,
 #edges > path.link-ui.hovered {
-  stroke: rgb(202, 118, 143);
-  fill: rgb(211, 154, 171);
+  stroke: var(--c-accent);
+  fill: var(--c-secondary);
   transition: fill 100ms, stroke 100ms;
 }
 

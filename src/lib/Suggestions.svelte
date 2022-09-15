@@ -28,6 +28,11 @@
     margin: 0;
     z-index: 2;
 
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 100%;
+
     background-color: #fff;
 
     border: 2px solid var(--borderColor);
@@ -49,9 +54,7 @@
       }
 
       &:hover, &.selected {
-        /* background-color: hsl(220, 80%, 90%); */
-        /* background-color: hsl(220, 20%, 94%); */
-        background-color: hsl(220, 35%, 90%);
+        background-color: var(--c-accent-soft);
       }
     }
   }

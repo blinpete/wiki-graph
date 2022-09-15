@@ -123,7 +123,7 @@
   </div>
 
   <Suggestions {suggestions} {selected} on:select={onSelect} />
-  <div class="progress-info">{
+  <div class="progress-info muted">{
     isLoading
       ? message
       : query
@@ -134,13 +134,14 @@
 
 <style lang="postcss">
   .input-box {
+    position: relative;
+
     display: flex;
     flex-direction: column;
     width: fit-content;
 
     color: var(--textColor);
 
-    margin: 0.8em;
   }
 
   .input-wrapper {
@@ -177,13 +178,12 @@
 
 
   .progress-info {
+    position: absolute;
+    top: 100%;
+
     font-size: small;
     padding: 0.2em 0.4em;
 
-    background-color: #fff;
-    opacity: 0.7;
     width: max-content;
-
-    color: var(--textColorMuted);
   }
 </style>

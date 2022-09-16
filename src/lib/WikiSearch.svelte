@@ -71,6 +71,8 @@
   }
 
   async function getSuggestions() {
+    // TODO: add suggestionsCache
+    
     const q = query.trim()
     if (!q) return
 
@@ -114,9 +116,10 @@
       autocomplete="off"
       placeholder="start wiki search..."
       bind:value={query}
+      on:click={getSuggestions}
       on:keyup={onKeyup}
       on:keydown={handleArrows}
-      on:blur={dropSuggest}
+      on:blur={() => setTimeout(dropSuggest, 100)}
       autofocus
     />
     <LanguageSelect/>

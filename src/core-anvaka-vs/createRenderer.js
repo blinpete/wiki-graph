@@ -223,9 +223,46 @@ export default function createRenderer(progress) {
     nodeContainer.appendChild(ui);
     nodes.set(node.id, ui);
 
-    ui.addEventListener('mouseenter', e => onEnterNode(e, node))
+
+
+
+    // --------------------- listeners ---------------------- 
+    let moved
+    let moveListener = e => {
+      moved = true
+    }
+
+    let downListener = e => {
+      moved = false
+      onLeaveNode(e, node)
+
+      ui.addEventListener('mousemove', moveListener)
+    }
+    let upListener = e => {
+      if (moved) {
+        // console.log('moved')
+      } else {
+        onNodeClick(e, node)
+        // console.log('not moved')
+      }
+
+      moved = false
+      ui.removeEventListener('mousemove', moveListener)
+    }
+
+    // click
+    // ui.addEventListener('click', e => onNodeClick(e, node));
+    ui.addEventListener('mousedown', downListener)
+    ui.addEventListener('mouseup', upListener)
+
+    // enter, leave
+    ui.addEventListener('mouseenter', e => {
+      // cancel on drag
+      if (moved) return
+
+      onEnterNode(e, node)
+    })
     ui.addEventListener('mouseleave', e => onLeaveNode(e, node))
-    ui.addEventListener('click', e => onNodeClick(e, node));
   }
 
   function onNodeClick(e, node) {

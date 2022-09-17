@@ -73,7 +73,7 @@ export function useState(apiClient, extraState) {
   });
 
   if (!appState.maxDepth) {
-    appState.maxDepth = 1
+    appState.maxDepth = 2
   }
 
   qs.onChange(updateAppState);

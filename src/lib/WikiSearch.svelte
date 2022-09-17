@@ -100,8 +100,13 @@
     switch(prop) {
       case 'message':
         message = val
+        return
       case 'working':
         isLoading = val
+        return
+      case 'query':
+        query = val
+        return
       default:
         return
     }

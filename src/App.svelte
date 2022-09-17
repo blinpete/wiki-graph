@@ -8,7 +8,7 @@
 
   let aboutVisible = false
 
-  console.log('[App] appState:', appState)
+  // console.log('[App] appState:', appState)
 
   // ------------------------------------------ language
   /**
@@ -44,34 +44,73 @@
   let tooltipHTML = ''
   let tooltipEl
   let hidingTimer: NodeJS.Timeout
+  let showingTimer: NodeJS.Timeout
 
   const ttWidth = 400
   const ttHeight = 500
 
   function scheduleHide() {
-    return setTimeout(() => isTooltipHidden = true, 100)
+    // console.log("🚀 sheduleHide")
+
+    return setTimeout(() => {
+      // console.log("🚀🚀 hide")
+
+      isTooltipHidden = true
+    }, 100)
+  }
+
+  function scheduleShow() {
+    // console.log("🚀 sheduleShow")
+
+    return setTimeout(() => {
+      // console.log("🚀🚀 show")
+
+      isTooltipHidden = false
+      clearTimeout(showingTimer)
+      showingTimer = null
+    }, 200)
   }
 
   function onEnterTooltip() {
-    console.log("🚀 ~ onEnterTooltip")
+    // console.log("🚀 ~ onEnterTooltip")
     clearTimeout(hidingTimer)
   }
 
   function onLeaveTooltip() {
-    console.log("🚀 ~ onLeaveTooltip")
+    // console.log("🚀 ~ onLeaveTooltip")
     hidingTimer = scheduleHide()
   }
 
   function showTooltipNode(e) {
-    console.log("🚀 ~ showTooltipNode ~ e", e)
+    // console.log("🚀 ~ showTooltipNode ~ e", e)
     // console.log("🚀 ~ showTooltipNode ~ e", visualViewport)
-    
+
     clearTimeout(hidingTimer)
 
     if (!e.node) {
       hidingTimer = scheduleHide()
+      clearTimeout(showingTimer)
+      showingTimer = null
       return
     }
+
+    if (showingTimer) {
+      return
+    }
+
+    // ------------------------ direction
+    const center = {
+      x: visualViewport.width / 2,
+      y: visualViewport.height / 2,
+    }
+
+    const sign = {
+      x: center.x - e.x,
+      y: center.y - e.y,
+    }
+
+    const isUp = sign.y < 0
+    // ----------------------------------
 
     // TODO: should sanitize?
     // https://developer.mozilla.org/en-US/docs/Web/API/HTML_Sanitizer_API
@@ -86,7 +125,7 @@
     //   return
     // }
 
-    isTooltipHidden = false
+    showingTimer = scheduleShow()
     
     let left: number
     requestAnimationFrame(() => {
@@ -94,12 +133,25 @@
       left = e.x - ttWidth/3
       
       // keep within viewport
-      left = Math.max(5, left)
+      left = Math.max(10, left)
       left = Math.min(visualViewport.width - ttWidth - 10, left)
 
       tooltipEl.style.left = left + 'px'
   
-      tooltipEl.style.top = e.y + 10 + 'px'
+      if (isUp) {
+        tooltipEl.style.top = 'unset'
+        tooltipEl.style.bottom = visualViewport.height - e.y + 20 + 'px'
+      } else {
+        tooltipEl.style.top = e.y + 20 + 'px'
+        tooltipEl.style.bottom = 'unset'
+      }
+
+      // ---------------- test: static corner
+      // tooltipEl.style.bottom = 0
+      // tooltipEl.style.top = 'unset'
+      // tooltipEl.style.right = 0
+      // tooltipEl.style.left = 'unset'
+      // ---------------------------------------
     })
 
   }
@@ -109,7 +161,7 @@
 
   // --------------------------------------- node click
   function onNodeClick(e) {
-    console.log("🚀 ~ onNodeClick ~ e", e)
+    // console.log("🚀 ~ onNodeClick ~ e", e)
     window.open(e.node.data.page_url)
     // window.open(e.node.data.page_url, '_blank')
 
@@ -121,7 +173,7 @@
   // --------------------------------------- functions
   async function onSearch(e: CustomEvent) {
     const q = e.detail
-    console.log('[onSearch] query:', q);
+    // console.log('[onSearch] query:', q);
 
     await performSearchWrap(q)
     renderer.render(appState.graph);
@@ -129,7 +181,7 @@
 
   async function performSearchWrap(query) {
     const summary = await apiClient.getSummary(query)
-    console.log('[summary]', summary);
+    // console.log('[summary]', summary);
     
     const entryItem = apiClient.getItem(summary)
     performSearch(entryItem)

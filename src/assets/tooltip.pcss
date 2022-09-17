@@ -4,8 +4,11 @@
   position: absolute;
 
   &[hidden] {
-    display: none;
+    /* display: none; */
+    opacity: 0;
+    pointer-events: none;
   }
+  transition: opacity 80ms linear;
 
   /* border: 2px solid #ddd; */
   box-shadow: 0 0 1px 2px hsl(0deg 1% 87%);
@@ -32,5 +35,6 @@
     background-color: #fff;
   }
 
-  max-height: min(500px, 50vh);
+  /* max-height: min(500px, 50vh); */
+  max-height: 280px;
 }

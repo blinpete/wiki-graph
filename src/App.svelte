@@ -133,7 +133,7 @@
   }
 </script>
 
-<main>
+<main class="app-container">
   <WikiSearch on:search="{onSearch}"/>
   <div
     id="tooltip"

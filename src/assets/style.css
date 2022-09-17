@@ -11,6 +11,8 @@
   --textColor: hsl(220, 10%, 45%);
   --textColorMuted: hsl(220, 5%, 50%);
   --borderColor: hsl(220, 10%, 88%);
+  /* --borderColor: hsl(0deg 2% 86%); */
+
   --borderFocusColor: #aaa;
 
   /* wikipedia color */
@@ -23,7 +25,50 @@
   --c-secondary: hsl(342, 39%, 72%);
 }
 
-:global(#app) {
+#app {
   position: absolute;
   z-index: 10;
+
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+
+  background-color: hsl(0, 33%, 98%);
+}
+
+.app-container {
+  margin: 0.8em;
+  position: relative;
+}
+
+.muted {
+  /* background-color: #fff; */
+  opacity: 0.7;
+  color: var(--textColorMuted);
+}
+
+.about-links {
+  position: absolute;
+
+  top: 0;
+  right: 0;
+
+  font-size: 0.9rem;
+  opacity: 0.6;
+}
+
+a:hover {
+  color: var(--c-accent);
+}
+
+/* reset */
+a {
+  color: inherit;
+  text-decoration: underline solid 1.7px;
+  text-decoration: underline dotted 1.7px;
+}
+input,
+select {
+  font-family: inherit;
 }

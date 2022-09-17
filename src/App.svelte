@@ -202,7 +202,7 @@
 
   <div class="layout-container about-links muted">
     <a href="#" on:click={() => aboutVisible = true}>about</a>
-    <a href="https://github.com/blinpete" target="_blank" rel="noopener noreferrer">code</a>
+    <a href="https://github.com/blinpete/wiki-graph" target="_blank" rel="noopener noreferrer">code</a>
   </div>
 
   <div

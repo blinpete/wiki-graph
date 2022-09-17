@@ -4,6 +4,9 @@
   import { bus, createRenderer } from "./core-anvaka-vs";
   import { appState, performSearch } from "./lib/state";
   import { apiClient } from "./lib/apiClient";
+  import About from "./lib/About.svelte";
+
+  let aboutVisible = false
 
   console.log('[App] appState:', appState)
 
@@ -17,7 +20,7 @@
    * Use case:
    *  1. first load
    *  2. collect appState from url
-   *  3. performSearch if query isn't empty (to this moment `lang` should be properly set)
+   *  3. perform search if query isn't empty (to this moment `lang` should be properly set)
    */
   
   const DEFAULT_LANG = 'en'
@@ -85,7 +88,7 @@
 
     isTooltipHidden = false
     
-    let left
+    let left: number
     requestAnimationFrame(() => {
       // shift a bit left
       left = e.x - ttWidth/3
@@ -96,7 +99,7 @@
 
       tooltipEl.style.left = left + 'px'
   
-      tooltipEl.style.top = e.y + 15 + 'px'
+      tooltipEl.style.top = e.y + 2 + 'px'
     })
 
   }
@@ -135,6 +138,11 @@
 
 <main class="app-container">
   <WikiSearch on:search="{onSearch}"/>
+  <div class="about-links muted">
+    <a href="#" on:click={() => aboutVisible = true}>about</a>
+    <a href="https://github.com/blinpete" target="_blank" rel="noopener noreferrer">code</a>
+  </div>
+
   <div
     id="tooltip"
     bind:this={tooltipEl}
@@ -143,6 +151,11 @@
     on:mouseleave="{onLeaveTooltip}"
   >{@html tooltipHTML}</div>
 </main>
+
+{#if aboutVisible}
+  <About on:hide={() => aboutVisible = false}/>
+{/if}
+
 
 
 <style lang="postcss">

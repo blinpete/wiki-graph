@@ -3,16 +3,51 @@
   const emit = createEventDispatcher<{hide: void}>()
   
   import { appState } from "./state";
-  let currentLang = appState.lang
+
+  type Langs = 'en' | 'ru'
+  let currentLang: Langs = appState.lang === 'ru' ? 'ru' : 'en'
 
   type Description = {
-    p1: string
-    p2: string
-    inspiration: string[]
+    descShort: string
+    desc: string
+    descTechnical: string
+    inspiredBy: string
+    checkOut: string
+    enjoy: string
+
+    node: { name: string; role: string}
+    edge: { name: string; role: string}
+    nodeClick: { name: string; role: string}
+    nodeHover: { name: string; role: string}
   }
 
-  const text = {
-    en: {}
+  const text: Record<Langs, Description> = {
+    en: {
+      descShort: "a graph client for Wikipedia",
+      desc: "Wiki Graph gets your query and takes two steps further to show you the bigger picture of what you're searching for. This way you can see related topics as well as connections between them.",
+      descTechnical: "It starts with a wiki article you give, collects top 20 related articles, then for each one collects their top 20 and finally draws a graph of everything that's found.",
+      inspiredBy: "This was heavily inspired by",
+      checkOut: " so check out his project",
+      enjoy: "Enjoy diving into knowledge",
+
+      node: {name: 'Node', role: 'represents a wiki article'},
+      edge: {name: 'Edge', role: 'represents a relation between two articles'},
+      nodeClick: {name: 'Node click', role: 'opens the article in a new tab'},
+      nodeHover: {name: 'Node hover', role: 'shows the article preview in a small popup'},
+    },
+    ru: {
+      descShort: "граф клиент для Википедии",
+      desc: "Wiki Graph принимает запрос и проходит на два шага вперед, чтобы показать более полную картину поиска. Так можно увидеть смежные темы и связи между ними.",
+      descTechnical: "Начиная с выбранной вики статьи, алгоритм собирает топ 20 смежных статей, потом для каждой из них собирает ее топ 20 и наконец рисует граф из всего, что найдено.",
+      inspiredBy: "Работа вдохновлена проектом",
+      checkOut: " и основана на его движке",
+      enjoy: "Ну все, развлекайтесь и ботайте",
+
+      node: {name: 'Узел', role: 'это вики-статья'},
+      edge: {name: 'Ребро', role: 'показывает связь между двумя статьями'},
+      nodeClick: {name: 'Клик по узелу', role: 'открывает статью в новой вкладке'},
+      nodeHover: {name: 'Наведение на узел', role: 'показывает превьюшку статьи'},
+    },
   }
 
   function handleEsc(e: KeyboardEvent) {
@@ -31,18 +66,18 @@
       <button class="btn-close" on:click={() => emit('hide')}>Esc</button>
   
       {#key currentLang}
-        <p class="tiny-note">a graph client for Wikipedia</p>
+        <p class="tiny-note">{text[currentLang].descShort}</p>
   
-        <p>Wiki Graph gets your query and takes two steps further to show you the bigger picture of what you're searching for. This way you can see related topics as well as connections between them.</p>
+        <p>{text[currentLang].desc}</p>
   
-        <p>It starts with a wiki article you give, collects top 20 related articles, then for each one collects their top 20 and finally draws a graph of everything that's found.</p>
+        <p>{text[currentLang].descTechnical}</p>
   
         <div class="inspiration">
-          <span>This was heavily inspired by anvaka's <a href="https://anvaka.github.io/vs/?query=" target="_blank" rel="noopener noreferrer">vs-autocomplete</a> so check out his project.</span>
+          {text[currentLang].inspiredBy} <span> anvaka's <a href="https://anvaka.github.io/vs/?query=" target="_blank" rel="noopener noreferrer">vs-autocomplete</a>{text[currentLang].checkOut}.</span>
         </div>
   
         <p class="p-last footnote">
-          Enjoy diving into knowledge,<br>
+          {text[currentLang].enjoy},<br>
           <code>
             <a href="https://github.com/blinpete" target="_blank" rel="noopener noreferrer">blinpete</a>
           </code>
@@ -56,13 +91,15 @@
 
     <section class="side">
       <div class="features">
-        <!-- <h3>Quick guide</h3> -->
-        <ul>
-          <li><strong>Node</strong> represents a wiki article.</li>
-          <li><strong>Edge</strong> represents a relation between two articles.</li>
-          <li><strong>Node click</strong> opens the article in a new tab.</li>
-          <li><strong>Node hover</strong> shows the article preview in a small popup.</li>
-        </ul>
+        {#key currentLang}
+          <!-- <h3>Quick guide</h3> -->
+          <ul>
+            <li><strong>{text[currentLang].node.name}</strong> {text[currentLang].node.role}.</li>
+            <li><strong>{text[currentLang].edge.name}</strong> {text[currentLang].edge.role}.</li>
+            <li><strong>{text[currentLang].nodeClick.name}</strong> {text[currentLang].nodeClick.role}.</li>
+            <li><strong>{text[currentLang].nodeHover.name}</strong> {text[currentLang].nodeHover.role}.</li>
+          </ul>
+        {/key}
       </div>
     </section>
   </div>

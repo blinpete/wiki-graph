@@ -71,3 +71,21 @@ input,
 select {
   font-family: inherit;
 }
+
+/* ------------------------ scrollbar ------------------------- */
+/* Works on Chrome, Edge, and Safari */
+*::-webkit-scrollbar {
+  width: 12px;
+}
+
+*::-webkit-scrollbar-track {
+  background: hsl(0, 0%, 96%);
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: hsl(0, 0%, 88%);
+}
+
+*::-webkit-scrollbar-button {
+  height: 0;
+}

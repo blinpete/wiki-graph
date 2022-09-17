@@ -95,11 +95,11 @@
       
       // keep within viewport
       left = Math.max(5, left)
-      left = Math.min(visualViewport.width - ttWidth - 5, left)
+      left = Math.min(visualViewport.width - ttWidth - 10, left)
 
       tooltipEl.style.left = left + 'px'
   
-      tooltipEl.style.top = e.y + 2 + 'px'
+      tooltipEl.style.top = e.y + 10 + 'px'
     })
 
   }
@@ -136,9 +136,10 @@
   }
 </script>
 
-<main class="app-container">
+<!-- <main class="app-container"> -->
   <WikiSearch on:search="{onSearch}"/>
-  <div class="about-links muted">
+
+  <div class="layout-container about-links muted">
     <a href="#" on:click={() => aboutVisible = true}>about</a>
     <a href="https://github.com/blinpete" target="_blank" rel="noopener noreferrer">code</a>
   </div>
@@ -150,7 +151,7 @@
     on:mouseenter="{onEnterTooltip}"
     on:mouseleave="{onLeaveTooltip}"
   >{@html tooltipHTML}</div>
-</main>
+<!-- </main> -->
 
 {#if aboutVisible}
   <About on:hide={() => aboutVisible = false}/>

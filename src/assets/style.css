@@ -37,9 +37,8 @@
   background-color: hsl(0, 33%, 98%);
 }
 
-.app-container {
+.layout-container {
   margin: 0.8em;
-  position: relative;
 }
 
 .muted {

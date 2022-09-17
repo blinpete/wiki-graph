@@ -108,7 +108,7 @@
   })
 </script>
 
-<div class="input-box">
+<div class="layout-container input-box">
   <div class="input-wrapper">
     <input
       type="text"

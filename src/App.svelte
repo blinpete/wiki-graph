@@ -168,7 +168,16 @@
   }
 
   bus.on('show-details-node', onNodeClick, {});
+
+
+  function onNodeClickRight(e) {
+    // console.log("🚀 ~ onNodeClickRight ~ e", e)
+
+    appState.query = e.node.id
+    onSearch({detail: e.node.id})
+  }
   
+  bus.on('node-click-right', onNodeClickRight, {});
   
   // --------------------------------------- functions
   async function onSearch(e: CustomEvent) {

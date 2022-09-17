@@ -242,7 +242,7 @@ export default function createRenderer(progress) {
       if (moved) {
         // console.log('moved')
       } else {
-        onNodeClick(e, node)
+        if (e.button === 0) onNodeClick(e, node)
         // console.log('not moved')
       }
 
@@ -251,9 +251,19 @@ export default function createRenderer(progress) {
     }
 
     // click
-    // ui.addEventListener('click', e => onNodeClick(e, node));
     ui.addEventListener('mousedown', downListener)
     ui.addEventListener('mouseup', upListener)
+
+    // right click
+    ui.addEventListener('contextmenu', e => {
+      // console.log('[RightClick] event:', e)
+
+      if (e.button == 2) {
+        e.preventDefault()
+        bus.fire('node-click-right', { node })
+      }
+    });
+
 
     // enter, leave
     ui.addEventListener('mouseenter', e => {

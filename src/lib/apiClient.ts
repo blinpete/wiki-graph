@@ -65,10 +65,13 @@ async function suggestCustom(query: string) {
 
   // return fetchSearch [query, suggests[], ""[], links[]]
   const [, titles, , links] = fetchSearch;
-
+  
+  
   const res: SuggestionsCustom = [];
-  for (let i = 0; i < titles.length; i++)
-    res.push({ title: titles[i], normalized: links[i].split("/").at(-1) });
+  for (let i = 0; i < titles.length; i++) {
+    const chunks = links[i].split("/")
+    res.push({ title: titles[i], normalized: chunks[chunks.length - 1] });
+  }
 
   return res;
 }

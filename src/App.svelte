@@ -1,12 +1,12 @@
 <script lang="ts">
   import WikiSearch from "./lib/WikiSearch.svelte";
-  
+
   import { bus, createRenderer } from "./core-anvaka-vs";
   import { appState, performSearch } from "./lib/state";
   import { apiClient } from "./lib/apiClient";
   import About from "./lib/About.svelte";
 
-  let aboutVisible = false
+  let aboutVisible = false;
 
   // console.log('[App] appState:', appState)
 
@@ -14,40 +14,38 @@
   /**
    * can't do this in useState
    * (core-anvaka-vs module doesn't know about apiClient.setLang method)
-   * 
+   *
    * so setting a language here.
-   * 
+   *
    * Use case:
    *  1. first load
    *  2. collect appState from url
    *  3. perform search if query isn't empty (to this moment `lang` should be properly set)
    */
-  
-  const DEFAULT_LANG = 'en'
-  apiClient.setLang(appState.lang || DEFAULT_LANG)
-  // ---------------------------------------------------
 
+  const DEFAULT_LANG = "en";
+  apiClient.setLang(appState.lang || DEFAULT_LANG);
+  // ---------------------------------------------------
 
   const renderer = createRenderer(appState.progress);
 
   if (appState.query) {
-    performSearchWrap(appState.query).then(res => {
+    performSearchWrap(appState.query).then((res) => {
       if (appState.graph) {
         renderer.render(appState.graph);
       }
     });
   }
 
-
   // ------------------------------------------ tooltip
-  let isTooltipHidden = true
-  let tooltipHTML = ''
-  let tooltipEl
-  let hidingTimer: NodeJS.Timeout
-  let showingTimer: NodeJS.Timeout
+  let isTooltipHidden = true;
+  let tooltipHTML = "";
+  let tooltipEl;
+  let hidingTimer: NodeJS.Timeout;
+  let showingTimer: NodeJS.Timeout;
 
-  const ttWidth = 400
-  const ttHeight = 500
+  const ttWidth = 400;
+  const ttHeight = 500;
 
   function scheduleHide() {
     // console.log("🚀 sheduleHide")
@@ -55,8 +53,8 @@
     return setTimeout(() => {
       // console.log("🚀🚀 hide")
 
-      isTooltipHidden = true
-    }, 100)
+      isTooltipHidden = true;
+    }, 100);
   }
 
   function scheduleShow() {
@@ -65,85 +63,85 @@
     return setTimeout(() => {
       // console.log("🚀🚀 show")
 
-      isTooltipHidden = false
-      clearTimeout(showingTimer)
-      showingTimer = null
-    }, 200)
+      isTooltipHidden = false;
+      clearTimeout(showingTimer);
+      showingTimer = null;
+    }, 200);
   }
 
   function onEnterTooltip() {
     // console.log("🚀 ~ onEnterTooltip")
-    clearTimeout(hidingTimer)
+    clearTimeout(hidingTimer);
   }
 
   function onLeaveTooltip() {
     // console.log("🚀 ~ onLeaveTooltip")
-    hidingTimer = scheduleHide()
+    hidingTimer = scheduleHide();
   }
 
   function showTooltipNode(e) {
     // console.log("🚀 ~ showTooltipNode ~ e", e)
     // console.log("🚀 ~ showTooltipNode ~ e", visualViewport)
 
-    clearTimeout(hidingTimer)
+    clearTimeout(hidingTimer);
 
     if (!e.node) {
-      hidingTimer = scheduleHide()
-      clearTimeout(showingTimer)
-      showingTimer = null
-      return
+      hidingTimer = scheduleHide();
+      clearTimeout(showingTimer);
+      showingTimer = null;
+      return;
     }
 
     if (showingTimer) {
-      return
+      return;
     }
 
     // ------------------------ direction
     const center = {
       x: visualViewport.width / 2,
       y: visualViewport.height / 2,
-    }
+    };
 
     const sign = {
       x: center.x - e.x,
       y: center.y - e.y,
-    }
+    };
 
-    const isUp = sign.y < 0
+    const isUp = sign.y < 0;
     // ----------------------------------
 
     // TODO: should sanitize?
     // https://developer.mozilla.org/en-US/docs/Web/API/HTML_Sanitizer_API
-    const {thumbnail, extract_html, page_url} = e.node.data
-    tooltipHTML = thumbnail ? `<img src="${thumbnail.source}" />` : ''
+    const { thumbnail, extract_html, page_url } = e.node.data;
+    tooltipHTML = thumbnail ? `<img src="${thumbnail.source}" />` : "";
 
-    const fallbackText = `Can't find a preview. See <a href="${page_url}">the original article</a>`
-    tooltipHTML += `<div class="text">${extract_html || fallbackText}</div>`
+    const fallbackText = `Can't find a preview. See <a href="${page_url}">the original article</a>`;
+    tooltipHTML += `<div class="text">${extract_html || fallbackText}</div>`;
 
     // reuse current tooltip
     // if (!isTooltipHidden) {
     //   return
     // }
 
-    showingTimer = scheduleShow()
-    
-    let left: number
+    showingTimer = scheduleShow();
+
+    let left: number;
     requestAnimationFrame(() => {
       // shift a bit left
-      left = e.x - ttWidth/3
-      
-      // keep within viewport
-      left = Math.max(10, left)
-      left = Math.min(visualViewport.width - ttWidth - 10, left)
+      left = e.x - ttWidth / 3;
 
-      tooltipEl.style.left = left + 'px'
-  
+      // keep within viewport
+      left = Math.max(10, left);
+      left = Math.min(visualViewport.width - ttWidth - 10, left);
+
+      tooltipEl.style.left = left + "px";
+
       if (isUp) {
-        tooltipEl.style.top = 'unset'
-        tooltipEl.style.bottom = visualViewport.height - e.y + 20 + 'px'
+        tooltipEl.style.top = "unset";
+        tooltipEl.style.bottom = visualViewport.height - e.y + 20 + "px";
       } else {
-        tooltipEl.style.top = e.y + 20 + 'px'
-        tooltipEl.style.bottom = 'unset'
+        tooltipEl.style.top = e.y + 20 + "px";
+        tooltipEl.style.bottom = "unset";
       }
 
       // ---------------- test: static corner
@@ -152,76 +150,76 @@
       // tooltipEl.style.right = 0
       // tooltipEl.style.left = 'unset'
       // ---------------------------------------
-    })
-
+    });
   }
-  
-  bus.on('show-tooltip-node', showTooltipNode, {});
 
+  bus.on("show-tooltip-node", showTooltipNode, {});
 
   // --------------------------------------- node click
   function onNodeClick(e) {
     // console.log("🚀 ~ onNodeClick ~ e", e)
-    window.open(e.node.data.page_url)
+    window.open(e.node.data.page_url);
     // window.open(e.node.data.page_url, '_blank')
-
   }
 
-  bus.on('show-details-node', onNodeClick, {});
-
+  bus.on("show-details-node", onNodeClick, {});
 
   function onNodeClickRight(e) {
     // console.log("🚀 ~ onNodeClickRight ~ e", e)
 
-    appState.query = e.node.id
-    onSearch({detail: e.node.id})
+    appState.query = e.node.id;
+    onSearch({ detail: e.node.id });
   }
-  
-  bus.on('node-click-right', onNodeClickRight, {});
-  
+
+  bus.on("node-click-right", onNodeClickRight, {});
+
   // --------------------------------------- functions
   async function onSearch(e: CustomEvent) {
-    const q = e.detail
+    const q = e.detail;
     // console.log('[onSearch] query:', q);
 
-    await performSearchWrap(q)
+    await performSearchWrap(q);
     renderer.render(appState.graph);
   }
 
   async function performSearchWrap(query) {
-    const summary = await apiClient.getSummary(query)
+    const summary = await apiClient.getSummary(query);
     // console.log('[summary]', summary);
-    
-    const entryItem = apiClient.getItem(summary)
-    performSearch(entryItem)
+
+    const entryItem = apiClient.getItem(summary);
+    performSearch(entryItem);
   }
 </script>
 
 <!-- <main class="app-container"> -->
-  <WikiSearch on:search="{onSearch}"/>
+<WikiSearch on:search={onSearch} />
 
-  <div class="layout-container about-links muted">
-    <a href="#" on:click={() => aboutVisible = true}>about</a>
-    <a href="https://github.com/blinpete/wiki-graph" target="_blank" rel="noopener noreferrer">code</a>
-  </div>
+<div class="layout-container about-links muted">
+  <a href="#" on:click={() => (aboutVisible = true)}>about</a>
+  <a
+    href="https://github.com/blinpete/wiki-graph"
+    target="_blank"
+    rel="noopener noreferrer">code</a
+  >
+</div>
 
-  <div
-    id="tooltip"
-    bind:this={tooltipEl}
-    hidden={isTooltipHidden}
-    on:mouseenter="{onEnterTooltip}"
-    on:mouseleave="{onLeaveTooltip}"
-  >{@html tooltipHTML}</div>
+<div
+  id="tooltip"
+  bind:this={tooltipEl}
+  hidden={isTooltipHidden}
+  on:mouseenter={onEnterTooltip}
+  on:mouseleave={onLeaveTooltip}
+>
+  {@html tooltipHTML}
+</div>
 <!-- </main> -->
 
 {#if aboutVisible}
-  <About on:hide={() => aboutVisible = false}/>
+  <About on:hide={() => (aboutVisible = false)} />
 {/if}
-
-
 
 <style lang="postcss">
   /* order matters */
-  @import './assets/style.css';
-  @import 'normalize.css';
+  @import "./assets/style.css";
+  @import "normalize.css";
 </style>

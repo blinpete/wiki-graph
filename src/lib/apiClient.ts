@@ -1,6 +1,7 @@
-import { writable } from "svelte/store";
-import wiki, { languageResult, relatedResult } from "wikipedia";
+import wiki, { relatedResult, wikiSummary } from "wikipedia";
 import { appState } from "./state";
+// TODO: get rid of `wikipedia` pkg
+
 
 // https://dev.to/timhuang/a-simple-way-to-detect-if-browser-is-on-a-mobile-device-with-javascript-44j3
 let isMobile = false;
@@ -16,23 +17,29 @@ function __minimizeUrl(url: string) {
   return url.replaceAll(/\n\s*/g, "");
 }
 
+let restApiLang = 'en'
+
+function RestApiBase() {
+  return `https://${restApiLang}.wikipedia.org/api/rest_v1`
+}
+
 // ------------------------------------------------------------ //
 //                        Auto completion                      //
 // -----------------------------------------------------------//
 
 /** Wraps `wiki.search()` method */
-async function suggest(query: string) {
-  const resSearch = await wiki.search(query, {
-    limit: 10,
-    suggestion: true,
-  });
-  console.log("resSearch:", resSearch);
+// async function suggest(query: string) {
+//   const resSearch = await wiki.search(query, {
+//     limit: 10,
+//     suggestion: true,
+//   });
+//   console.log("resSearch:", resSearch);
 
-  // const resSuggest = await wiki.suggest(query);
-  // console.log("resSuggest:", resSuggest);
+//   // const resSuggest = await wiki.suggest(query);
+//   // console.log("resSuggest:", resSuggest);
 
-  return resSearch.results;
-}
+//   return resSearch.results;
+// }
 
 const getUrlSuggest = (query) =>
   __minimizeUrl(`
@@ -114,13 +121,17 @@ async function page(query: string) {
 }
 
 async function getSummary(query: string) {
-  const summary = await wiki.summary(query);
+  // console.log("🚀 | getSummary | query", query)
+
+  const endpoint = RestApiBase() + '/page/summary/' + query
+  const summary: wikiSummary = await (await fetch(endpoint)).json();
 
   return summary;
 }
 
 async function getResponse(query: string) {
-  const related = await wiki.related(query);
+  const endpoint = RestApiBase() + '/page/related/' + query
+  const related: relatedResult = await (await fetch(endpoint)).json();
 
   return related.pages;
 }
@@ -184,15 +195,16 @@ function getItem(item: relatedResult["pages"][number]) {
 // }
 
 function setLang(language: string) {
-  // validation
+  // validation?
 
-  wiki.setLang(language);
+  restApiLang = language;
 }
 
 export const apiClient = {
-  suggest,
+  // suggest,
+  // page,
+
   suggestCustom,
-  page,
   getSummary,
 
   getResponse,

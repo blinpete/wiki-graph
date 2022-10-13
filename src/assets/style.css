@@ -72,6 +72,10 @@ select {
   font-family: inherit;
 }
 
+dd {
+  margin-inline-start: 0;
+}
+
 /* ------------------------ scrollbar ------------------------- */
 /* Works on Chrome, Edge, and Safari */
 *::-webkit-scrollbar {

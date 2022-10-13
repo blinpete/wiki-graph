@@ -75,7 +75,9 @@ select {
 /* ------------------------ scrollbar ------------------------- */
 /* Works on Chrome, Edge, and Safari */
 *::-webkit-scrollbar {
-  width: 12px;
+  --size: 12px;
+  width: var(--size);
+  height: var(--size);
 }
 
 *::-webkit-scrollbar-track {

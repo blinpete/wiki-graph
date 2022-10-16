@@ -230,37 +230,47 @@ export default function createRenderer(progress) {
     // --------------------- listeners ----------------------
     let moved;
     let moveListener = (e) => {
-    // --------------------- listeners ---------------------- 
-    let moved
+      moved = true;
+    };
 
-      moved = true
-    }
+    let downListener = (e) => {
+      console.log("🚀 | downListener | e", e);
 
-    let downListener = e => {
-      moved = false
-      onLeaveNode(e, node)
+      moved = false;
+      // onLeaveNode(e, node);
 
-      ui.addEventListener('mousemove', moveListener)
-    }
-    let upListener = e => {
+      ui.addEventListener("mousemove", moveListener);
+      ui.addEventListener("touchmove", moveListener);
     };
     let upListener = (e) => {
       if (moved) {
-        // console.log('moved')
+        console.log("moved");
       } else {
-        if (e.button === 0) onNodeClick(e, node)
-        // console.log('not moved')
+        // on desktop: fire click to open a new tab
+        if (e.button === 0) onNodeClick(e, node);
+
+        // on touch screens: fire onEnterNode to show tooltip
+        if (e.type === "touchend") {
+          onEnterNode(e, node);
+
+          // to prevent onSceneClick from hiding the tooltip
+          e.stopPropagation();
+        }
+
+        console.log("not moved");
       }
 
       moved = false;
-      moved = false
-      ui.removeEventListener('mousemove', moveListener)
-    }
+      ui.removeEventListener("mousemove", moveListener);
+      ui.removeEventListener("touchmove", moveListener);
     };
 
     // click
-    ui.addEventListener('mousedown', downListener)
-    ui.addEventListener('mouseup', upListener)
+    ui.addEventListener("mousedown", downListener);
+    ui.addEventListener("mouseup", upListener);
+
+    ui.addEventListener("touchstart", downListener);
+    ui.addEventListener("touchend", upListener);
 
     // right click
     ui.addEventListener("contextmenu", (e) => {

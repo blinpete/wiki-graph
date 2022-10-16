@@ -242,6 +242,13 @@ export default function createRenderer(progress) {
       moved = true;
     };
 
+    /** The `flag` shows if there was a tap within `timeout` ms. */
+    let wasTap = {
+      flag: false,
+      timeout: 500,
+      timer: null,
+    };
+
     let downListener = (e) => {
       console.log("🚀 | downListener | e", e);
 
@@ -261,6 +268,22 @@ export default function createRenderer(progress) {
         // on touch screens: fire onEnterNode to show tooltip
         if (e.type === "touchend") {
           onEnterNode(e, node);
+
+          // start a timer to handle double tap
+          if (wasTap.flag) {
+            console.log("🚀 | upListener: double tap!");
+            onNodeClick(e, node);
+
+            // to prevent tripple tap
+            wasTap.flag = false;
+            clearTimeout(wasTap.timer);
+          } else {
+            wasTap.flag = true;
+            wasTap.timer = setTimeout(
+              () => (wasTap.flag = false),
+              wasTap.timeout
+            );
+          }
 
           // to prevent onSceneClick from hiding the tooltip
           e.stopPropagation();

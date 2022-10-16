@@ -65,10 +65,18 @@ export default function createRenderer(progress) {
   }
 
   function onSceneClick(e) {
-    let info = findLinkInfoFromEvent(e);
-    if (info) {
-      bus.fire('show-details', info.link);
-    }
+    console.log("🚀 | onSceneClick | e", e);
+
+    // hiding the suggestion dropdown
+    svgEl.focus();
+
+    // hiding the tooltip
+    onLeaveNode(e);
+
+    // let info = findLinkInfoFromEvent(e);
+    // if (info) {
+    //   bus.fire("show-details", info.link);
+    // }
   }
 
   function findLinkInfoFromEvent(e) {
@@ -155,7 +163,8 @@ export default function createRenderer(progress) {
     linkAnimator = createLinkAnimator(graph, layout, edgeContainer);
 
     // document.addEventListener('mousemove', onMouseMove);
-    // svgEl.addEventListener('click', onSceneClick);
+    svgEl.addEventListener("click", onSceneClick);
+    svgEl.addEventListener("touchend", onSceneClick);
 
     // let radius = 42;
     // linkIndex = buildLinkIndex(graph, layout, radius);

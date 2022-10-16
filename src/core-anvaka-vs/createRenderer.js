@@ -1,45 +1,48 @@
 /**
  * The core of the rendering process
  */
-import createPanZoom from 'panzoom';
-import createTextMeasure from './measureText';
-import createAggregateLayout from './aggregateLayout';
-import bus from './bus';
-import createLinkAnimator from './renderer/linkAnimator';
-import buildLinkIndex from './buildLinkIndex';
+import createPanZoom from "panzoom";
+import createTextMeasure from "./measureText";
+import createAggregateLayout from "./aggregateLayout";
+import bus from "./bus";
+import createLinkAnimator from "./renderer/linkAnimator";
+import buildLinkIndex from "./buildLinkIndex";
 
-import svg from 'simplesvg';
+import svg from "simplesvg";
 
 /**
  * Creates a new renderer. The rendering is done with SVG.
  */
 export default function createRenderer(progress) {
-  const scene = document.querySelector('#scene');
-  const nodeContainer = scene.querySelector('#nodes');
-  const edgeContainer = scene.querySelector('#edges');
+  const scene = document.querySelector("#scene");
+  const nodeContainer = scene.querySelector("#nodes");
+  const edgeContainer = scene.querySelector("#edges");
   const hideTooltipArgs = { isVisible: false };
-  const svgEl = document.querySelector('svg');
+  const svgEl = document.querySelector("svg");
   const pt = svgEl.createSVGPoint();
   const panzoom = createPanZoom(scene);
-  const defaultRectangle = { left: -500, right: 500, top: -500, bottom: 500 }
+  const defaultRectangle = { left: -500, right: 500, top: -500, bottom: 500 };
   panzoom.showRectangle(defaultRectangle);
 
   // maps node id to node ui
   let nodes = new Map();
 
   let linkIndex;
-  let layout, graph, currentLayoutFrame = 0, linkAnimator;
+  let layout,
+    graph,
+    currentLayoutFrame = 0,
+    linkAnimator;
   let textMeasure = createTextMeasure(scene);
-  bus.on('graph-ready', onGraphReady);
+  bus.on("graph-ready", onGraphReady);
 
   return {
     render,
-    dispose
-  }
+    dispose,
+  };
 
   function dispose() {
     clearLastScene();
-    bus.off('graph-ready', onGraphReady);
+    bus.off("graph-ready", onGraphReady);
   }
 
   function onMouseMove(e) {
@@ -54,17 +57,26 @@ export default function createRenderer(progress) {
   function getNearestLink(x, y) {
     if (!linkIndex) return;
 
-    pt.x = x; pt.y = y;
+    pt.x = x;
+    pt.y = y;
     let svgP = pt.matrixTransform(scene.getScreenCTM().inverse());
     let link = linkIndex.findNearestLink(svgP.x, svgP.y, 30);
     if (link) return link.id;
   }
 
   function onSceneClick(e) {
-    let info = findLinkInfoFromEvent(e);
-    if (info) {
-      bus.fire('show-details', info.link);
-    }
+    // console.log("🚀 | onSceneClick | e", e);
+
+    // hiding the suggestion dropdown
+    svgEl.focus();
+
+    // hiding the tooltip
+    onLeaveNode(e);
+
+    // let info = findLinkInfoFromEvent(e);
+    // if (info) {
+    //   bus.fire("show-details", info.link);
+    // }
   }
 
   function findLinkInfoFromEvent(e) {
@@ -79,32 +91,32 @@ export default function createRenderer(progress) {
 
   function showTooltip(minLink, clientX, clientY) {
     const { fromId, toId } = minLink.link;
-    bus.fire('show-tooltip', {
+    bus.fire("show-tooltip", {
       isVisible: true,
       from: fromId,
       to: toId,
       x: clientX,
-      y: clientY
+      y: clientY,
     });
 
     removeHighlight();
 
-    nodes.get(fromId).classList.add('hovered');
-    nodes.get(toId).classList.add('hovered');
-    minLink.ui.classList.add('hovered');
+    nodes.get(fromId).classList.add("hovered");
+    nodes.get(toId).classList.add("hovered");
+    minLink.ui.classList.add("hovered");
   }
 
   function hideTooltip() {
-    bus.fire('show-tooltip', hideTooltipArgs);
+    bus.fire("show-tooltip", hideTooltipArgs);
     removeHighlight();
   }
 
   function removeHighlight() {
-    scene.querySelectorAll('.hovered').forEach(removeHoverClass);
+    scene.querySelectorAll(".hovered").forEach(removeHoverClass);
   }
 
   function removeHoverClass(el) {
-    el.classList.remove('hovered');
+    el.classList.remove("hovered");
   }
 
   function render(newGraph) {
@@ -113,15 +125,15 @@ export default function createRenderer(progress) {
 
     layout = createAggregateLayout(graph, progress);
 
-    layout.on('ready', drawLinks);
+    layout.on("ready", drawLinks);
 
     nodes = new Map();
 
     graph.forEachNode(addNode);
-    graph.on('changed', onGraphStructureChanged);
+    graph.on("changed", onGraphStructureChanged);
 
     cancelAnimationFrame(currentLayoutFrame);
-    currentLayoutFrame = requestAnimationFrame(frame)
+    currentLayoutFrame = requestAnimationFrame(frame);
   }
 
   function onGraphReady(readyGraph) {
@@ -133,17 +145,17 @@ export default function createRenderer(progress) {
 
   function frame() {
     if (layout.step()) {
-      currentLayoutFrame = requestAnimationFrame(frame)
+      currentLayoutFrame = requestAnimationFrame(frame);
     }
     updatePositions();
   }
 
   function onGraphStructureChanged(changes) {
-    changes.forEach(change => {
-      if (change.changeType === 'add' && change.node) {
+    changes.forEach((change) => {
+      if (change.changeType === "add" && change.node) {
         addNode(change.node);
       }
-    })
+    });
   }
 
   function drawLinks() {
@@ -151,7 +163,8 @@ export default function createRenderer(progress) {
     linkAnimator = createLinkAnimator(graph, layout, edgeContainer);
 
     // document.addEventListener('mousemove', onMouseMove);
-    // svgEl.addEventListener('click', onSceneClick);
+    svgEl.addEventListener("click", onSceneClick);
+    svgEl.addEventListener("touchend", onSceneClick);
 
     // let radius = 42;
     // linkIndex = buildLinkIndex(graph, layout, radius);
@@ -170,10 +183,10 @@ export default function createRenderer(progress) {
     clear(nodeContainer);
     clear(edgeContainer);
 
-    document.removeEventListener('mousemove', onMouseMove);
-    svgEl.removeEventListener('click', onSceneClick);
-    if (layout) layout.off('ready', drawLinks);
-    if (graph) graph.off('changed', onGraphStructureChanged);
+    document.removeEventListener("mousemove", onMouseMove);
+    svgEl.removeEventListener("click", onSceneClick);
+    if (layout) layout.off("ready", drawLinks);
+    if (graph) graph.off("changed", onGraphStructureChanged);
     if (linkAnimator) linkAnimator.dispose();
   }
 
@@ -200,22 +213,22 @@ export default function createRenderer(progress) {
       height: uiAttributes.height,
       rx: uiAttributes.rx,
       ry: uiAttributes.ry,
-      fill: 'white',
-      'stroke-width': uiAttributes.strokeWidth,
-      stroke: '#58585A'
-    }
+      fill: "white",
+      "stroke-width": uiAttributes.strokeWidth,
+      stroke: "#58585A",
+    };
     const textAttributes = {
-      'font-size': uiAttributes.fontSize,
+      "font-size": uiAttributes.fontSize,
       x: uiAttributes.px,
-      y: uiAttributes.py
-    }
+      y: uiAttributes.py,
+    };
 
-    const rect = svg('rect', rectAttributes);
-    const text = svg('text', textAttributes)
+    const rect = svg("rect", rectAttributes);
+    const text = svg("text", textAttributes);
     text.text(node.id);
 
-    const ui = svg('g', {
-      transform: `translate(${pos.x}, ${pos.y})`
+    const ui = svg("g", {
+      transform: `translate(${pos.x}, ${pos.y})`,
     });
     ui.appendChild(rect);
     ui.appendChild(text);
@@ -223,102 +236,167 @@ export default function createRenderer(progress) {
     nodeContainer.appendChild(ui);
     nodes.set(node.id, ui);
 
+    // --------------------- listeners ----------------------
+    let moved;
+    let moveListener = (e) => {
+      moved = true;
+    };
 
+    /** The `flag` shows if there was a tap within `timeout` ms. */
+    let wasTap = {
+      flag: false,
+      timeout: 500,
+      timer: null,
+    };
 
+    let longTap = {
+      expect: false,
+      timeout: 300,
+      timer: null,
+    };
 
-    // --------------------- listeners ---------------------- 
-    let moved
-    let moveListener = e => {
-      moved = true
-    }
+    let downListener = (e) => {
+      // console.log("🚀 | downListener | e", e);
 
-    let downListener = e => {
-      moved = false
-      onLeaveNode(e, node)
+      moved = false;
+      // onLeaveNode(e, node);
 
-      ui.addEventListener('mousemove', moveListener)
-    }
-    let upListener = e => {
-      if (moved) {
-        // console.log('moved')
-      } else {
-        if (e.button === 0) onNodeClick(e, node)
-        // console.log('not moved')
+      // long tap timer
+      if (e.type === "touchstart") {
+        clearTimeout(longTap.timer);
+
+        longTap.expect = false;
+        longTap.timer = setTimeout(
+          () => (longTap.expect = true),
+          longTap.timeout
+        );
       }
 
-      moved = false
-      ui.removeEventListener('mousemove', moveListener)
-    }
+      ui.addEventListener("mousemove", moveListener);
+      ui.addEventListener("touchmove", moveListener);
+    };
+    let upListener = (e) => {
+      if (moved) {
+        // console.log("moved");
+      } else {
+        // on desktop: fire click to open a new tab
+        if (e.button === 0) onNodeClick(e, node);
+
+        // on touch screens: fire onEnterNode to show tooltip
+        if (e.type === "touchend") {
+          // start a timer to handle double tap
+          if (wasTap.flag) {
+            // console.log("🚀 | upListener: double tap!");
+            onNodeClick(e, node);
+
+            // to prevent tripple tap
+            wasTap.flag = false;
+            clearTimeout(wasTap.timer);
+          } else {
+            wasTap.flag = true;
+            wasTap.timer = setTimeout(
+              () => (wasTap.flag = false),
+              wasTap.timeout
+            );
+          }
+
+          // long tap => right-click
+          if (longTap.expect) {
+            // console.log("🚀 | upListener: long tap!");
+
+            // fire leave node event
+            onLeaveNode(e, null);
+
+            // fire right click
+            bus.fire("node-click-right", { node });
+          } else {
+            // open tooltip
+            onEnterNode(e, node);
+          }
+
+          // to prevent onSceneClick from hiding the tooltip
+          e.stopPropagation();
+        }
+
+        // console.log("not moved");
+      }
+
+      moved = false;
+      ui.removeEventListener("mousemove", moveListener);
+      ui.removeEventListener("touchmove", moveListener);
+    };
 
     // click
-    ui.addEventListener('mousedown', downListener)
-    ui.addEventListener('mouseup', upListener)
+    ui.addEventListener("mousedown", downListener);
+    ui.addEventListener("mouseup", upListener);
+
+    ui.addEventListener("touchstart", downListener);
+    ui.addEventListener("touchend", upListener);
 
     // right click
-    ui.addEventListener('contextmenu', e => {
-      // console.log('[RightClick] event:', e)
+    ui.addEventListener("contextmenu", (e) => {
+      // console.log("[RightClick] event:", e);
 
       if (e.button == 2) {
-        e.preventDefault()
-        bus.fire('node-click-right', { node })
+        e.preventDefault();
+        bus.fire("node-click-right", { node });
       }
     });
 
-
     // enter, leave
-    ui.addEventListener('mouseenter', e => {
+    ui.addEventListener("mouseenter", (e) => {
       // cancel on drag
-      if (moved) return
+      if (moved) return;
 
-      onEnterNode(e, node)
-    })
-    ui.addEventListener('mouseleave', e => onLeaveNode(e, node))
+      onEnterNode(e, node);
+    });
+    ui.addEventListener("mouseleave", (e) => onLeaveNode(e, node));
   }
 
   function onNodeClick(e, node) {
-    // console.log("🚀 ~ onNodeClick ~ e, node", e, node)
-    bus.fire('show-details-node', { node })
+    // console.log("🚀 ~ onNodeClick ~ e, node", e, node);
+    bus.fire("show-details-node", { node });
   }
 
   function onLeaveNode(e, node) {
-    // console.log("🚀 ~ onLeaveNode ~ node", node)
-    removeHighlight();
+    // console.log("🚀 ~ onLeaveNode ~ node", node);
+    // removeHighlight();
 
     // tooltip
-    bus.fire('show-tooltip-node', { node: null })
+    bus.fire("show-tooltip-node", { node: null });
   }
 
   function onEnterNode(e, node) {
     // console.log("🚀 ~ onHoverNode ~ e", e.target)
     // console.log("🚀 ~ onHoverNode ~ node", node)
+    removeHighlight();
 
-    const el = e.target
-    addHoveredClass(el)
+    const el = e.target;
+    addHoveredClass(el);
 
     if (node.links?.length) {
-      node.links.forEach(link => {
+      node.links.forEach((link) => {
         // console.log("🚀 ~ onHoverNode ~ link", link)
-        const linkObj = linkAnimator.getLinkInfo(link.id)
-        addHoveredClass(linkObj.ui)
+        const linkObj = linkAnimator.getLinkInfo(link.id);
+        addHoveredClass(linkObj.ui);
 
-        const linkedId = link.fromId !== node.id ? link.fromId : link.toId
-        const linkedNode = nodes.get(linkedId)
-        addHoveredClass(linkedNode)
-      })
+        const linkedId = link.fromId !== node.id ? link.fromId : link.toId;
+        const linkedNode = nodes.get(linkedId);
+        addHoveredClass(linkedNode);
+      });
     }
 
     function addHoveredClass(htmlEl) {
-      htmlEl.classList.add('hovered')
+      htmlEl.classList.add("hovered");
     }
 
     // tooltip
-    bus.fire('show-tooltip-node', {
+    bus.fire("show-tooltip-node", {
       node,
       x: e.clientX,
       y: e.clientY,
-    })
+    });
   }
-
 
   function getNodeUIAttributes(nodeId, dRatio) {
     const fontSize = 45 * dRatio + 14;
@@ -336,14 +414,14 @@ export default function createRenderer(progress) {
       ry: 15 * dRatio + 2,
       px: -width / 2 + size.spaceWidth * 3,
       py: -height / 2 + fontSize * 1.1,
-      strokeWidth: 4 * dRatio + 1
+      strokeWidth: 4 * dRatio + 1,
     };
   }
 
   function updatePositions() {
     nodes.forEach((ui, nodeId) => {
-      let pos = getNodePosition(nodeId)
-      ui.attr('transform', `translate(${pos.x}, ${pos.y})`);
+      let pos = getNodePosition(nodeId);
+      ui.attr("transform", `translate(${pos.x}, ${pos.y})`);
     });
   }
 

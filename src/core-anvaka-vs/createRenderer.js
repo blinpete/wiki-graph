@@ -249,11 +249,28 @@ export default function createRenderer(progress) {
       timer: null,
     };
 
+    let longTap = {
+      expect: false,
+      timeout: 300,
+      timer: null,
+    };
+
     let downListener = (e) => {
       console.log("🚀 | downListener | e", e);
 
       moved = false;
       // onLeaveNode(e, node);
+
+      // long tap timer
+      if (e.type === "touchstart") {
+        clearTimeout(longTap.timer);
+
+        longTap.expect = false;
+        longTap.timer = setTimeout(
+          () => (longTap.expect = true),
+          longTap.timeout
+        );
+      }
 
       ui.addEventListener("mousemove", moveListener);
       ui.addEventListener("touchmove", moveListener);
@@ -267,8 +284,6 @@ export default function createRenderer(progress) {
 
         // on touch screens: fire onEnterNode to show tooltip
         if (e.type === "touchend") {
-          onEnterNode(e, node);
-
           // start a timer to handle double tap
           if (wasTap.flag) {
             console.log("🚀 | upListener: double tap!");
@@ -283,6 +298,20 @@ export default function createRenderer(progress) {
               () => (wasTap.flag = false),
               wasTap.timeout
             );
+          }
+
+          // long tap => right-click
+          if (longTap.expect) {
+            console.log("🚀 | upListener: long tap!");
+
+            // fire leave node event
+            onLeaveNode(e, null);
+
+            // fire right click
+            bus.fire("node-click-right", { node });
+          } else {
+            // open tooltip
+            onEnterNode(e, node);
           }
 
           // to prevent onSceneClick from hiding the tooltip

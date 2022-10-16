@@ -307,8 +307,8 @@ export default function createRenderer(progress) {
   }
 
   function onLeaveNode(e, node) {
-    // console.log("🚀 ~ onLeaveNode ~ node", node)
-    removeHighlight();
+    console.log("🚀 ~ onLeaveNode ~ node", node);
+    // removeHighlight();
 
     // tooltip
     bus.fire("show-tooltip-node", { node: null });
@@ -317,6 +317,7 @@ export default function createRenderer(progress) {
   function onEnterNode(e, node) {
     // console.log("🚀 ~ onHoverNode ~ e", e.target)
     // console.log("🚀 ~ onHoverNode ~ node", node)
+    removeHighlight();
 
     const el = e.target;
     addHoveredClass(el);

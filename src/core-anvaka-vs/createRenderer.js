@@ -65,7 +65,7 @@ export default function createRenderer(progress) {
   }
 
   function onSceneClick(e) {
-    console.log("🚀 | onSceneClick | e", e);
+    // console.log("🚀 | onSceneClick | e", e);
 
     // hiding the suggestion dropdown
     svgEl.focus();
@@ -256,7 +256,7 @@ export default function createRenderer(progress) {
     };
 
     let downListener = (e) => {
-      console.log("🚀 | downListener | e", e);
+      // console.log("🚀 | downListener | e", e);
 
       moved = false;
       // onLeaveNode(e, node);
@@ -277,7 +277,7 @@ export default function createRenderer(progress) {
     };
     let upListener = (e) => {
       if (moved) {
-        console.log("moved");
+        // console.log("moved");
       } else {
         // on desktop: fire click to open a new tab
         if (e.button === 0) onNodeClick(e, node);
@@ -286,7 +286,7 @@ export default function createRenderer(progress) {
         if (e.type === "touchend") {
           // start a timer to handle double tap
           if (wasTap.flag) {
-            console.log("🚀 | upListener: double tap!");
+            // console.log("🚀 | upListener: double tap!");
             onNodeClick(e, node);
 
             // to prevent tripple tap
@@ -302,7 +302,7 @@ export default function createRenderer(progress) {
 
           // long tap => right-click
           if (longTap.expect) {
-            console.log("🚀 | upListener: long tap!");
+            // console.log("🚀 | upListener: long tap!");
 
             // fire leave node event
             onLeaveNode(e, null);
@@ -318,7 +318,7 @@ export default function createRenderer(progress) {
           e.stopPropagation();
         }
 
-        console.log("not moved");
+        // console.log("not moved");
       }
 
       moved = false;
@@ -335,7 +335,7 @@ export default function createRenderer(progress) {
 
     // right click
     ui.addEventListener("contextmenu", (e) => {
-      // console.log('[RightClick] event:', e)
+      // console.log("[RightClick] event:", e);
 
       if (e.button == 2) {
         e.preventDefault();
@@ -354,12 +354,12 @@ export default function createRenderer(progress) {
   }
 
   function onNodeClick(e, node) {
-    console.log("🚀 ~ onNodeClick ~ e, node", e, node);
+    // console.log("🚀 ~ onNodeClick ~ e, node", e, node);
     bus.fire("show-details-node", { node });
   }
 
   function onLeaveNode(e, node) {
-    console.log("🚀 ~ onLeaveNode ~ node", node);
+    // console.log("🚀 ~ onLeaveNode ~ node", node);
     // removeHighlight();
 
     // tooltip

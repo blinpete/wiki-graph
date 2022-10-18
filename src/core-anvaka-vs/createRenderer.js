@@ -164,7 +164,7 @@ export default function createRenderer(progress) {
 
     // document.addEventListener('mousemove', onMouseMove);
     svgEl.addEventListener("click", onSceneClick);
-    svgEl.addEventListener("touchend", onSceneClick);
+    svgEl.addEventListener("pointerup", onSceneClick);
 
     // let radius = 42;
     // linkIndex = buildLinkIndex(graph, layout, radius);
@@ -185,6 +185,8 @@ export default function createRenderer(progress) {
 
     document.removeEventListener("mousemove", onMouseMove);
     svgEl.removeEventListener("click", onSceneClick);
+    svgEl.removeEventListener("pointerup", onSceneClick);
+
     if (layout) layout.off("ready", drawLinks);
     if (graph) graph.off("changed", onGraphStructureChanged);
     if (linkAnimator) linkAnimator.dispose();
@@ -262,7 +264,7 @@ export default function createRenderer(progress) {
       // onLeaveNode(e, node);
 
       // long tap timer
-      if (e.type === "touchstart") {
+      if (e.pointerType === "touch") {
         clearTimeout(longTap.timer);
 
         longTap.expect = false;
@@ -272,18 +274,22 @@ export default function createRenderer(progress) {
         );
       }
 
-      ui.addEventListener("mousemove", moveListener);
-      ui.addEventListener("touchmove", moveListener);
+      // ui.addEventListener("mousemove", moveListener);
+      // ui.addEventListener("touchmove", moveListener);
+      ui.addEventListener("pointermove", moveListener);
+
+      // relates to this?
+      // https://github.com/anvaka/panzoom/blob/main/lib/makeTextSelectionInterceptor.js
     };
     let upListener = (e) => {
       if (moved) {
         // console.log("moved");
       } else {
         // on desktop: fire click to open a new tab
-        if (e.button === 0) onNodeClick(e, node);
+        if (e.pointerType === "mouse" && e.button === 0) onNodeClick(e, node);
 
         // on touch screens: fire onEnterNode to show tooltip
-        if (e.type === "touchend") {
+        if (e.pointerType === "touch") {
           // start a timer to handle double tap
           if (wasTap.flag) {
             // console.log("🚀 | upListener: double tap!");
@@ -311,7 +317,7 @@ export default function createRenderer(progress) {
             bus.fire("node-click-right", { node });
           } else {
             // open tooltip
-            onEnterNode(e, node);
+            onEnterNode(e, node, true);
           }
 
           // to prevent onSceneClick from hiding the tooltip
@@ -322,16 +328,20 @@ export default function createRenderer(progress) {
       }
 
       moved = false;
-      ui.removeEventListener("mousemove", moveListener);
-      ui.removeEventListener("touchmove", moveListener);
+      // ui.removeEventListener("mousemove", moveListener);
+      // ui.removeEventListener("touchmove", moveListener);
+      ui.removeEventListener("pointermove", moveListener);
     };
 
     // click
-    ui.addEventListener("mousedown", downListener);
-    ui.addEventListener("mouseup", upListener);
+    // ui.addEventListener("mousedown", downListener);
+    // ui.addEventListener("mouseup", upListener);
 
-    ui.addEventListener("touchstart", downListener);
-    ui.addEventListener("touchend", upListener);
+    // ui.addEventListener("touchstart", downListener);
+    // ui.addEventListener("touchend", upListener);
+
+    ui.addEventListener("pointerdown", downListener);
+    ui.addEventListener("pointerup", upListener);
 
     // right click
     ui.addEventListener("contextmenu", (e) => {
@@ -366,9 +376,9 @@ export default function createRenderer(progress) {
     bus.fire("show-tooltip-node", { node: null });
   }
 
-  function onEnterNode(e, node) {
-    // console.log("🚀 ~ onHoverNode ~ e", e.target)
-    // console.log("🚀 ~ onHoverNode ~ node", node)
+  function onEnterNode(e, node, isTouch = false) {
+    // console.log("🚀 ~ onHoverNode ~ e", e.target);
+    // console.log("🚀 ~ onHoverNode ~ node", node);
     removeHighlight();
 
     const el = e.target;
@@ -376,7 +386,7 @@ export default function createRenderer(progress) {
 
     if (node.links?.length) {
       node.links.forEach((link) => {
-        // console.log("🚀 ~ onHoverNode ~ link", link)
+        // console.log("🚀 ~ onHoverNode ~ link", link);
         const linkObj = linkAnimator.getLinkInfo(link.id);
         addHoveredClass(linkObj.ui);
 
@@ -393,8 +403,8 @@ export default function createRenderer(progress) {
     // tooltip
     bus.fire("show-tooltip-node", {
       node,
-      x: e.clientX,
-      y: e.clientY,
+      x: !isTouch ? e.clientX : undefined,
+      y: !isTouch ? e.clientY : undefined,
     });
   }
 

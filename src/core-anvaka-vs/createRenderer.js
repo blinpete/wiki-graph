@@ -13,14 +13,21 @@ import svg from "simplesvg";
 /**
  * Creates a new renderer. The rendering is done with SVG.
  */
-export default function createRenderer(progress) {
+export default function createRenderer(progress, isMobile) {
   const scene = document.querySelector("#scene");
   const nodeContainer = scene.querySelector("#nodes");
   const edgeContainer = scene.querySelector("#edges");
   const hideTooltipArgs = { isVisible: false };
   const svgEl = document.querySelector("svg");
   const pt = svgEl.createSVGPoint();
-  const panzoom = createPanZoom(scene);
+
+  const panzoom = createPanZoom(scene, {
+    onTouch(e) {
+      // console.log("🚀 | onTouch | e", e);
+      // tells the library to not preventDefault
+      return false;
+    },
+  });
   const defaultRectangle = { left: -500, right: 500, top: -500, bottom: 500 };
   panzoom.showRectangle(defaultRectangle);
 
@@ -163,7 +170,7 @@ export default function createRenderer(progress) {
     linkAnimator = createLinkAnimator(graph, layout, edgeContainer);
 
     // document.addEventListener('mousemove', onMouseMove);
-    svgEl.addEventListener("click", onSceneClick);
+    // svgEl.addEventListener("click", onSceneClick);
     svgEl.addEventListener("pointerup", onSceneClick);
 
     // let radius = 42;
@@ -183,8 +190,8 @@ export default function createRenderer(progress) {
     clear(nodeContainer);
     clear(edgeContainer);
 
-    document.removeEventListener("mousemove", onMouseMove);
-    svgEl.removeEventListener("click", onSceneClick);
+    // document.removeEventListener("mousemove", onMouseMove);
+    // svgEl.removeEventListener("click", onSceneClick);
     svgEl.removeEventListener("pointerup", onSceneClick);
 
     if (layout) layout.off("ready", drawLinks);
@@ -317,10 +324,11 @@ export default function createRenderer(progress) {
             bus.fire("node-click-right", { node });
           } else {
             // open tooltip
-            onEnterNode(e, node, true);
+            // onEnterNode(e, node, true);
           }
 
           // to prevent onSceneClick from hiding the tooltip
+          // e.preventDefault();
           e.stopPropagation();
         }
 
@@ -344,21 +352,23 @@ export default function createRenderer(progress) {
     ui.addEventListener("pointerup", upListener);
 
     // right click
-    ui.addEventListener("contextmenu", (e) => {
-      // console.log("[RightClick] event:", e);
+    if (!isMobile) {
+      ui.addEventListener("contextmenu", (e) => {
+        // console.log("[RightClick] event:", e);
 
-      if (e.button == 2) {
-        e.preventDefault();
-        bus.fire("node-click-right", { node });
-      }
-    });
+        if (e.button == 2) {
+          e.preventDefault();
+          bus.fire("node-click-right", { node });
+        }
+      });
+    }
 
     // enter, leave
     ui.addEventListener("mouseenter", (e) => {
       // cancel on drag
       if (moved) return;
 
-      onEnterNode(e, node);
+      onEnterNode(e, node, isMobile);
     });
     ui.addEventListener("mouseleave", (e) => onLeaveNode(e, node));
   }

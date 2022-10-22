@@ -3,7 +3,7 @@
 
   import { bus, createRenderer } from "./core-anvaka-vs";
   import { appState, performSearch } from "./lib/state";
-  import { apiClient } from "./lib/apiClient";
+  import { apiClient, isMobile } from "./lib/apiClient";
   import About from "./lib/About.svelte";
 
   let aboutVisible = false;
@@ -27,7 +27,7 @@
   apiClient.setLang(appState.lang || DEFAULT_LANG);
   // ---------------------------------------------------
 
-  const renderer = createRenderer(appState.progress);
+  const renderer = createRenderer(appState.progress, isMobile);
 
   if (appState.query) {
     performSearchWrap(appState.query).then((res) => {

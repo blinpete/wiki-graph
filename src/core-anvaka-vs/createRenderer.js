@@ -32,13 +32,6 @@ export default function createRenderer(progress, isMobile) {
   const defaultRectangle = { left: -500, right: 500, top: -500, bottom: 500 };
   panzoom.showRectangle(defaultRectangle);
 
-  // only preventDefault pointermove
-  scene.addEventListener("pointermove", (e) => {
-    // console.log("🚀 | scene.pointermove => preventDefault")
-
-    e.preventDefault();
-  });
-
   // maps node id to node ui
   let nodes = new Map();
 

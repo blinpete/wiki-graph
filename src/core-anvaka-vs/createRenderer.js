@@ -22,6 +22,7 @@ export default function createRenderer(progress, isMobile) {
   const pt = svgEl.createSVGPoint();
 
   const panzoom = createPanZoom(scene, {
+    // https://github.com/anvaka/panzoom/issues/12#issuecomment-373251144
     onTouch(e) {
       // console.log("🚀 | onTouch | e", e);
       // tells the library to not preventDefault
@@ -30,6 +31,13 @@ export default function createRenderer(progress, isMobile) {
   });
   const defaultRectangle = { left: -500, right: 500, top: -500, bottom: 500 };
   panzoom.showRectangle(defaultRectangle);
+
+  // only preventDefault pointermove
+  scene.addEventListener("pointermove", (e) => {
+    // console.log("🚀 | scene.pointermove => preventDefault")
+
+    e.preventDefault();
+  });
 
   // maps node id to node ui
   let nodes = new Map();

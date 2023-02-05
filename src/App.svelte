@@ -27,7 +27,39 @@
   apiClient.setLang(appState.lang || DEFAULT_LANG);
   // ---------------------------------------------------
 
-  const renderer = createRenderer(appState.progress, isMobile);
+  const wordlePlaceholder = '...'
+
+  function isWordleOn() {
+    return appState.wordle.toString().includes('true')
+  }
+
+  /**
+   * this funciton garantees that hidden
+   * nodes don't flash on first render
+   **/
+  function getText(node) {
+    console.log("🚀 | getText | node", node)
+    
+    const ids = getWordleIdsSet()
+    
+    if (isWordleOn() && ids.has(node?.data?.pageid?.toString())) {
+      return wordlePlaceholder
+    }
+
+    return node.id
+  }
+
+  function wordleAddNodeHook(node, ui, text) {
+    // if (!isWordleOn()) return
+    
+    const ids = getWordleIdsSet()
+
+    if(ids.has(node?.data?.pageid?.toString())) {
+      wordleNodes.set(node.data.pageid, {node, ui, text})
+    }
+  }
+
+  const renderer = createRenderer(appState.progress, isMobile, getText, wordleAddNodeHook);
 
   if (appState.query) {
     performSearchWrap(appState.query).then((res) => {
@@ -35,6 +67,35 @@
         renderer.render(appState.graph);
       }
     });
+  }
+
+  function dropWordleIds() {
+    wordleNodes.forEach(obj => {
+      obj.text.text(obj.node.id)
+    })
+    wordleNodes.clear()
+    appState.wordle = true
+  }
+
+  function toggleWordleMode() {
+    const ids = getWordleIdsSet()
+
+    if (ids.has('true')) {
+      ids.delete('true')
+      ids.add('false')
+
+      wordleNodes.forEach(obj => {
+        obj.text.text(obj.node.id)
+      })
+    } else {
+      ids.delete('false')
+      ids.add('true')
+
+      wordleNodes.forEach(obj => {
+        obj.text.text(wordlePlaceholder)
+      })
+    }
+    appState.wordle = [...ids].join(wordleIdSep)
   }
 
   // ------------------------------------------ tooltip
@@ -80,8 +141,12 @@
   }
 
   function showTooltipNode(e) {
-    // console.log("🚀 ~ showTooltipNode ~ e", e)
+    console.log("🚀 ~ showTooltipNode ~ e", e)
     // console.log("🚀 ~ showTooltipNode ~ e", visualViewport)
+
+    if (isWordleOn() && appState.wordle.toString().includes(e.node?.data?.pageid?.toString())) {
+      return  
+    }
 
     clearTimeout(hidingTimer);
 
@@ -155,10 +220,48 @@
 
   bus.on("show-tooltip-node", showTooltipNode, {});
 
+  const wordleIdSep = '-'
+  function getWordleIdsSet() {
+    return new Set(appState.wordle.toString().split(wordleIdSep))
+  }
+  function toggleWordleId(id: number | string) {
+    const ids = getWordleIdsSet()
+    console.log("🚀 | toggleWordleId | ids", ids)
+
+    const str = id.toString()
+    const deleted = ids.delete(str)
+
+    if (!deleted) {
+      ids.add(str)
+    }
+
+    appState.wordle = [...ids].join(wordleIdSep)
+
+    return !deleted
+  }
+
+  const wordleNodes = new Map()
+
   // --------------------------------------- node click
   function onNodeClick(e) {
-    // console.log("🚀 ~ onNodeClick ~ e", e)
-    window.open(e.node.data.page_url);
+    console.log("🚀 ~ onNodeClick ~ e", e)
+
+    if (!isWordleOn()) {
+      window.open(e.node.data.page_url);
+    }
+    else {
+      console.log("🚀 | onNodeClick | e.node.data", e.node.data)
+      const isIdSelected = toggleWordleId(e.node.data.pageid)
+      
+      if (isIdSelected) {
+        e.text.text(wordlePlaceholder)
+        wordleNodes.set(e.node.data.pageid, e)
+      } else {
+        e.text.text(e.node.id)
+        wordleNodes.delete(e.node.data.pageid)
+      }
+    }
+
     // window.open(e.node.data.page_url, '_blank')
   }
 
@@ -192,9 +295,15 @@
 </script>
 
 <!-- <main class="app-container"> -->
-<WikiSearch on:search={onSearch} />
+{#if !appState.wordle.toString().includes('true')}
+  <WikiSearch on:search={onSearch} />
+{/if}
 
 <div class="layout-container about-links muted">
+  {#if appState.wordle.toString().includes('true')}
+    <a href="#" on:click={dropWordleIds}>drop wordle setup</a>
+  {/if}
+  <a href="#" on:click={toggleWordleMode}>{'wordle ' + (appState.wordle.toString().includes('true') ? 'on' : 'off')}</a>
   <a href="#" on:click={() => (aboutVisible = true)}>about</a>
   <a
     href="https://github.com/blinpete/wiki-graph"

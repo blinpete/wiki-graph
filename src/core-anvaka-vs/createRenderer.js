@@ -13,7 +13,7 @@ import svg from "simplesvg";
 /**
  * Creates a new renderer. The rendering is done with SVG.
  */
-export default function createRenderer(progress, isMobile) {
+export default function createRenderer(progress, isMobile, getText, afterAddNodeHook) {
   const scene = document.querySelector("#scene");
   const nodeContainer = scene.querySelector("#nodes");
   const edgeContainer = scene.querySelector("#edges");
@@ -73,7 +73,9 @@ export default function createRenderer(progress, isMobile) {
   }
 
   function onSceneClick(e) {
-    // console.log("🚀 | onSceneClick | e", e);
+    console.log("🚀 | onSceneClick | e", e);
+
+    removeHighlight()
 
     // hiding the suggestion dropdown
     svgEl.focus();
@@ -235,7 +237,8 @@ export default function createRenderer(progress, isMobile) {
 
     const rect = svg("rect", rectAttributes);
     const text = svg("text", textAttributes);
-    text.text(node.id);
+    // text.text(' ' || node.id);
+    text.text(getText(node));
 
     const ui = svg("g", {
       transform: `translate(${pos.x}, ${pos.y})`,
@@ -245,6 +248,10 @@ export default function createRenderer(progress, isMobile) {
 
     nodeContainer.appendChild(ui);
     nodes.set(node.id, ui);
+
+    if (afterAddNodeHook instanceof Function) {
+      afterAddNodeHook(node, ui, text)
+    }
 
     // --------------------- listeners ----------------------
     let moved;
@@ -294,14 +301,14 @@ export default function createRenderer(progress, isMobile) {
         // console.log("moved");
       } else {
         // on desktop: fire click to open a new tab
-        if (e.pointerType === "mouse" && e.button === 0) onNodeClick(e, node);
+        if (e.pointerType === "mouse" && e.button === 0) onNodeClick(e, node, ui, text);
 
         // on touch screens: fire onEnterNode to show tooltip
         if (e.pointerType === "touch") {
           // start a timer to handle double tap
           if (wasTap.flag) {
             // console.log("🚀 | upListener: double tap!");
-            onNodeClick(e, node);
+            onNodeClick(e, node, ui, text);
 
             // to prevent tripple tap
             wasTap.flag = false;
@@ -374,9 +381,9 @@ export default function createRenderer(progress, isMobile) {
     ui.addEventListener("mouseleave", (e) => onLeaveNode(e, node));
   }
 
-  function onNodeClick(e, node) {
+  function onNodeClick(e, node, ui, text) {
     // console.log("🚀 ~ onNodeClick ~ e, node", e, node);
-    bus.fire("show-details-node", { node });
+    bus.fire("show-details-node", { node, ui, text });
   }
 
   function onLeaveNode(e, node) {

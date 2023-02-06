@@ -27,7 +27,11 @@
   apiClient.setLang(appState.lang || DEFAULT_LANG);
   // ---------------------------------------------------
 
-  const wordlePlaceholder = '...'
+  function wordlePlaceholder(node) {
+    // return '...'
+    return node.id.replaceAll(/[^\n\s]/g,  '-')
+    
+  }
 
   function isWordleOn() {
     return appState.wordle.toString().includes('true')
@@ -43,7 +47,7 @@
     const ids = getWordleIdsSet()
     
     if (isWordleOn() && ids.has(node?.data?.pageid?.toString())) {
-      return wordlePlaceholder
+      return wordlePlaceholder(node)
     }
 
     return node.id
@@ -92,7 +96,7 @@
       ids.add('true')
 
       wordleNodes.forEach(obj => {
-        obj.text.text(wordlePlaceholder)
+        obj.text.text(wordlePlaceholder(obj.node))
       })
     }
     appState.wordle = [...ids].join(wordleIdSep)
@@ -254,7 +258,7 @@
       const isIdSelected = toggleWordleId(e.node.data.pageid)
       
       if (isIdSelected) {
-        e.text.text(wordlePlaceholder)
+        e.text.text(wordlePlaceholder(e.node))
         wordleNodes.set(e.node.data.pageid, e)
       } else {
         e.text.text(e.node.id)

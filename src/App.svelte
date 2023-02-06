@@ -6,6 +6,10 @@
   import { apiClient, isMobile } from "./lib/apiClient";
   import About from "./lib/About.svelte";
 
+  import { Confetti } from "svelte-confetti";
+  let showConfetti = false
+  let showConfettiContainer = false
+
   let aboutVisible = false;
 
   // console.log('[App] appState:', appState)
@@ -241,6 +245,15 @@
 
     appState.wordle = [...ids].join(wordleIdSep)
 
+    if (appState.wordle === 'true') {
+      // alert('wow!')
+      showConfetti = true
+      showConfettiContainer = true
+
+      setTimeout(() => (showConfetti = false), 4500)
+      setTimeout(() => (showConfettiContainer = false), 6000)
+    }
+
     return !deleted
   }
 
@@ -303,6 +316,38 @@
   <WikiSearch on:search={onSearch} />
 {/if}
 
+{#if showConfettiContainer}
+<div 
+
+  style="
+  opacity: {showConfetti ? 1 : 0};
+  transition: opacity 1.2s linear;
+  position: fixed;
+  bottom: -40px;
+  left: 0;
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  justify-content: center;
+  overflow: visible;
+  pointer-events: none;">
+  <!-- <Confetti x={[-5, 5]} y={[0, 0.2]} delay={[0, 2000]} duration=5500 infinite amount=300 fallDistance="100vh" /> -->
+  <!-- <Confetti class="left" x={[1.2, 5.5]} y={[1.25, 2.75]} delay={[0, 2500]} xSpread=0.2 amount=400 /> -->
+  <!-- <Confetti class="right" x={[-1.2, -5.5]} y={[1.25, 2.75]} delay={[0, 2500]} xSpread=0.2 amount=400 /> -->
+  <Confetti
+    class="left"
+    x={[-2.3, 2.3]} y={[1, 3.3]}
+    infinite
+    delay={[0, 1200]} xSpread=0.1 amount=300
+    destroyOnComplete={false}
+    />
+    <!-- bind:infinite={showConfetti} -->
+    <!-- iterationCount -->
+
+</div>
+
+{/if}
+
 <div class="layout-container about-links muted">
   {#if appState.wordle.toString().includes('true')}
     <a href="#" on:click={dropWordleIds}>drop wordle setup</a>
@@ -335,4 +380,14 @@
   /* order matters */
   @import "./assets/style.css";
   @import "normalize.css";
+
+  /* :global(.confetti-holder) {
+    position: absolute;
+    bottom: 0;
+  } */
+  :global(.confetti) {
+    position: fixed;
+    bottom: 0px;
+    /* left: 0; */
+  }
 </style>

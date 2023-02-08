@@ -7,10 +7,12 @@
   import About from "./lib/About.svelte";
 
   import { Confetti } from "svelte-confetti";
+  import AboutWordle from "./lib/AboutWordle.svelte";
   let showConfetti = false
   let showConfettiContainer = false
 
   let aboutVisible = false;
+  let aboutWordleVisible = false;
 
   // console.log('[App] appState:', appState)
 
@@ -246,12 +248,16 @@
     appState.wordle = [...ids].join(wordleIdSep)
 
     if (appState.wordle === 'true') {
-      // alert('wow!')
       showConfetti = true
       showConfettiContainer = true
 
-      setTimeout(() => (showConfetti = false), 4500)
-      setTimeout(() => (showConfettiContainer = false), 6000)
+      setTimeout(() => {
+        showConfetti = false
+        if (isWordleOn()) toggleWordleMode()
+      }, 4500)
+      setTimeout(() => {
+        showConfettiContainer = false
+      }, 6000)
     }
 
     return !deleted
@@ -314,6 +320,11 @@
 <!-- <main class="app-container"> -->
 {#if !appState.wordle.toString().includes('true')}
   <WikiSearch on:search={onSearch} />
+
+  {:else}
+  <div style="display: flex; width: fit-content; opacity: 0.7; font-weight: 500; padding: 0.7em 1em;">
+    Wordle mode
+  </div>
 {/if}
 
 {#if showConfettiContainer}
@@ -350,7 +361,8 @@
 
 <div class="layout-container about-links muted">
   {#if appState.wordle.toString().includes('true')}
-    <a href="#" on:click={dropWordleIds}>drop wordle setup</a>
+    <a href="#" on:click={() => (aboutWordleVisible = true)}>What is this?</a>
+    <a href="#" on:click={dropWordleIds}>drop wordles</a>
   {/if}
   <a href="#" on:click={toggleWordleMode}>{'wordle ' + (appState.wordle.toString().includes('true') ? 'on' : 'off')}</a>
   <a href="#" on:click={() => (aboutVisible = true)}>about</a>
@@ -374,6 +386,10 @@
 
 {#if aboutVisible}
   <About on:hide={() => (aboutVisible = false)} />
+{/if}
+
+{#if aboutWordleVisible}
+  <AboutWordle on:hide={() => (aboutWordleVisible = false)} />
 {/if}
 
 <style lang="postcss">

@@ -37,6 +37,7 @@
     "panzoom": "^9.2.5",
     "query-state": "^4.3.0",
     "simplesvg": "^0.1.1",
+    "svelte-confetti": "^1.2.2",
     "wikipedia": "^1.1.8"
   }
 }

@@ -6,7 +6,13 @@
   import { apiClient, isMobile } from "./lib/apiClient";
   import About from "./lib/About.svelte";
 
+  import { Confetti } from "svelte-confetti";
+  import AboutWordle from "./lib/AboutWordle.svelte";
+  let showConfetti = false
+  let showConfettiContainer = false
+
   let aboutVisible = false;
+  let aboutWordleVisible = false;
 
   // console.log('[App] appState:', appState)
 
@@ -27,7 +33,43 @@
   apiClient.setLang(appState.lang || DEFAULT_LANG);
   // ---------------------------------------------------
 
-  const renderer = createRenderer(appState.progress, isMobile);
+  function wordlePlaceholder(node) {
+    // return '...'
+    return node.id.replaceAll(/[^\n\s]/g,  '-')
+    
+  }
+
+  function isWordleOn() {
+    return appState.wordle.toString().includes('true')
+  }
+
+  /**
+   * this funciton garantees that hidden
+   * nodes don't flash on first render
+   **/
+  function getText(node) {
+    console.log("🚀 | getText | node", node)
+    
+    const ids = getWordleIdsSet()
+    
+    if (isWordleOn() && ids.has(node?.data?.pageid?.toString())) {
+      return wordlePlaceholder(node)
+    }
+
+    return node.id
+  }
+
+  function wordleAddNodeHook(node, ui, text) {
+    // if (!isWordleOn()) return
+    
+    const ids = getWordleIdsSet()
+
+    if(ids.has(node?.data?.pageid?.toString())) {
+      wordleNodes.set(node.data.pageid, {node, ui, text})
+    }
+  }
+
+  const renderer = createRenderer(appState.progress, isMobile, getText, wordleAddNodeHook);
 
   if (appState.query) {
     performSearchWrap(appState.query).then((res) => {
@@ -35,6 +77,35 @@
         renderer.render(appState.graph);
       }
     });
+  }
+
+  function dropWordleIds() {
+    wordleNodes.forEach(obj => {
+      obj.text.text(obj.node.id)
+    })
+    wordleNodes.clear()
+    appState.wordle = true
+  }
+
+  function toggleWordleMode() {
+    const ids = getWordleIdsSet()
+
+    if (ids.has('true')) {
+      ids.delete('true')
+      ids.add('false')
+
+      wordleNodes.forEach(obj => {
+        obj.text.text(obj.node.id)
+      })
+    } else {
+      ids.delete('false')
+      ids.add('true')
+
+      wordleNodes.forEach(obj => {
+        obj.text.text(wordlePlaceholder(obj.node))
+      })
+    }
+    appState.wordle = [...ids].join(wordleIdSep)
   }
 
   // ------------------------------------------ tooltip
@@ -80,8 +151,12 @@
   }
 
   function showTooltipNode(e) {
-    // console.log("🚀 ~ showTooltipNode ~ e", e)
+    console.log("🚀 ~ showTooltipNode ~ e", e)
     // console.log("🚀 ~ showTooltipNode ~ e", visualViewport)
+
+    if (isWordleOn() && appState.wordle.toString().includes(e.node?.data?.pageid?.toString())) {
+      return  
+    }
 
     clearTimeout(hidingTimer);
 
@@ -155,10 +230,61 @@
 
   bus.on("show-tooltip-node", showTooltipNode, {});
 
+  const wordleIdSep = '-'
+  function getWordleIdsSet() {
+    return new Set(appState.wordle.toString().split(wordleIdSep))
+  }
+  function toggleWordleId(id: number | string) {
+    const ids = getWordleIdsSet()
+    console.log("🚀 | toggleWordleId | ids", ids)
+
+    const str = id.toString()
+    const deleted = ids.delete(str)
+
+    if (!deleted) {
+      ids.add(str)
+    }
+
+    appState.wordle = [...ids].join(wordleIdSep)
+
+    if (appState.wordle === 'true') {
+      showConfetti = true
+      showConfettiContainer = true
+
+      setTimeout(() => {
+        showConfetti = false
+        if (isWordleOn()) toggleWordleMode()
+      }, 4500)
+      setTimeout(() => {
+        showConfettiContainer = false
+      }, 6000)
+    }
+
+    return !deleted
+  }
+
+  const wordleNodes = new Map()
+
   // --------------------------------------- node click
   function onNodeClick(e) {
-    // console.log("🚀 ~ onNodeClick ~ e", e)
-    window.open(e.node.data.page_url);
+    console.log("🚀 ~ onNodeClick ~ e", e)
+
+    if (!isWordleOn()) {
+      window.open(e.node.data.page_url);
+    }
+    else {
+      console.log("🚀 | onNodeClick | e.node.data", e.node.data)
+      const isIdSelected = toggleWordleId(e.node.data.pageid)
+      
+      if (isIdSelected) {
+        e.text.text(wordlePlaceholder(e.node))
+        wordleNodes.set(e.node.data.pageid, e)
+      } else {
+        e.text.text(e.node.id)
+        wordleNodes.delete(e.node.data.pageid)
+      }
+    }
+
     // window.open(e.node.data.page_url, '_blank')
   }
 
@@ -192,9 +318,53 @@
 </script>
 
 <!-- <main class="app-container"> -->
-<WikiSearch on:search={onSearch} />
+{#if !appState.wordle.toString().includes('true')}
+  <WikiSearch on:search={onSearch} />
+
+  {:else}
+  <div style="display: flex; width: fit-content; opacity: 0.7; font-weight: 500; padding: 0.7em 1em;">
+    Wordle mode
+  </div>
+{/if}
+
+{#if showConfettiContainer}
+<div 
+
+  style="
+  opacity: {showConfetti ? 1 : 0};
+  transition: opacity 1.2s linear;
+  position: fixed;
+  bottom: -40px;
+  left: 0;
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  justify-content: center;
+  overflow: visible;
+  pointer-events: none;">
+  <!-- <Confetti x={[-5, 5]} y={[0, 0.2]} delay={[0, 2000]} duration=5500 infinite amount=300 fallDistance="100vh" /> -->
+  <!-- <Confetti class="left" x={[1.2, 5.5]} y={[1.25, 2.75]} delay={[0, 2500]} xSpread=0.2 amount=400 /> -->
+  <!-- <Confetti class="right" x={[-1.2, -5.5]} y={[1.25, 2.75]} delay={[0, 2500]} xSpread=0.2 amount=400 /> -->
+  <Confetti
+    class="left"
+    x={[-2.3, 2.3]} y={[1, 3.3]}
+    infinite
+    delay={[0, 1200]} xSpread=0.1 amount=300
+    destroyOnComplete={false}
+    />
+    <!-- bind:infinite={showConfetti} -->
+    <!-- iterationCount -->
+
+</div>
+
+{/if}
 
 <div class="layout-container about-links muted">
+  {#if appState.wordle.toString().includes('true')}
+    <a href="#" on:click={() => (aboutWordleVisible = true)}>What is this?</a>
+    <a href="#" on:click={dropWordleIds}>drop wordles</a>
+  {/if}
+  <a href="#" on:click={toggleWordleMode}>{'wordle ' + (appState.wordle.toString().includes('true') ? 'on' : 'off')}</a>
   <a href="#" on:click={() => (aboutVisible = true)}>about</a>
   <a
     href="https://github.com/blinpete/wiki-graph"
@@ -218,8 +388,22 @@
   <About on:hide={() => (aboutVisible = false)} />
 {/if}
 
+{#if aboutWordleVisible}
+  <AboutWordle on:hide={() => (aboutWordleVisible = false)} />
+{/if}
+
 <style lang="postcss">
   /* order matters */
   @import "./assets/style.css";
   @import "normalize.css";
+
+  /* :global(.confetti-holder) {
+    position: absolute;
+    bottom: 0;
+  } */
+  :global(.confetti) {
+    position: fixed;
+    bottom: 0px;
+    /* left: 0; */
+  }
 </style>

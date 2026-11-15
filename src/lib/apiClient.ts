@@ -52,6 +52,38 @@ const getUrlSuggest = (query) =>
   &limit=10
   &origin=*`);
 
+
+const getUrlPageLinks = (query) => [
+  `https://${appState.lang}.wikipedia.org/w/api.php`,
+  // ------> https://www.mediawiki.org/wiki/API:Search_and_discovery#CirrusSearch
+  // '?action=query',
+  // '&list=search',
+  // `&srsearch=morelike:${query}`,
+  // '&srnamespace=0',
+  // '&srlimit=20',
+  // '&format=json',
+  // '&formatversion=2',
+  // '&origin=*&',
+
+  // ------> https://www.mediawiki.org/wiki/API:Search_and_discovery#CirrusSearch
+  // same but generator
+  '?action=query',
+  '&generator=search',
+  `&gsrsearch=morelike:${query}`,
+  '&gsrnamespace=0',
+  '&gsrlimit=20',
+  '&prop=extracts|pageimages|description|info',
+  '&exintro=1',
+  '&exlimit=20',
+  '&piprop=original|thumbnail',
+  '&pithumbsize=320',
+  '&inprop=url',
+  '&format=json',
+  '&formatversion=2',
+  '&origin=*&',
+].join('')
+
+
 /**
  * Uses `Legacy Wikipedia API - api.php`
  *
@@ -119,50 +151,88 @@ async function page(query: string) {
 
   return resPage;
 }
+/**
+ * 
+ * from https://www.mediawiki.org/wiki/API:Links#See_also
+ * API:Linkshere - API:Properties submodule that finds pages which include a link to the given page.
+ * API:Backlinks - API:Lists submodule that gets a list of pages which link to a given page.
+ * API:Iwlinks - Find interwiki links on a given page (i.e, meta pages, special pages).
+ * API:Iwbacklinks - Get a list of pages which are linked from a given interwiki link.
+ * 
+*/
+async function getLinksCustom(query) {
+  const apiEndpoint = getUrlPageLinks(query);
+  const linksResponse = (await (await fetch(apiEndpoint)).json()) as {
+    batchcomplete: boolean
+    continue: {sroffset: number, continue: '-||'}
+    query: {
+      search: {pageid: number; ns: number; title: string}[]
+      searchinfo: {totalhits: 22, approximate_totalhits: true}
+    }
+  };
+
+  console.log("🔥 linksResponse:", linksResponse);
+
+  const pages = linksResponse.query.search
+
+  // const pages = await Promise.all(
+  //   linksResponse.query.search.map(p => getSummary(p.title))
+  //   // linksResponse.query.backlinks.map(p => getSummary(p.title))
+  //   // linksResponse.query.pages[pageid].links.map(p => getSummary(p.title))
+  // )
+
+  return pages
+}
 
 async function getSummary(query: string) {
-  // console.log("🚀 | getSummary | query", query)
+  const endpoint = [
+    `https://${appState.lang}.wikipedia.org/w/api.php`,
+    '?action=query',
+    `&titles=${query}`,
+    '&prop=extracts|pageimages|description|info',
+    '&exintro=1',
+    '&exlimit=20',
+    '&piprop=original|thumbnail',
+    '&pithumbsize=320',
+    '&inprop=url',
+    '&format=json',
+    '&formatversion=2',
+    '&origin=*&',
+    ].join('')
 
-  const endpoint = RestApiBase() + '/page/summary/' + query
-  const summary: wikiSummary = await (await fetch(endpoint)).json();
+  const summary: ActionAPI_Summary_Response = await (await fetch(endpoint)).json();
 
-  return summary;
+  return summary.query.pages[0];
 }
 
 async function getResponse(query: string) {
-  const endpoint = RestApiBase() + '/page/related/' + query
-  const related: relatedResult = await (await fetch(endpoint)).json();
-
-  return related.pages;
+  return getLinksCustom(query)
 }
 
-function getItem(item: relatedResult["pages"][number]) {
-  // TODO: replace with titles.display?
-  // return item.titles.normalized;
-
+function getItem(item: ActionAPI_Summary) {
   const {
     description,
     pageid,
-    extract_html,
-    originalimage,
+    extract,
+    original,
     thumbnail,
-    content_urls,
+    fullurl,
   } = item;
 
   const page_url = isMobile
-    ? content_urls.mobile.page
-    : content_urls.desktop.page;
+    ? fullurl.replace('.wikipedia', '.m.wikipedia')
+    : fullurl;
 
   const data = {
     description,
     pageid,
-    extract_html,
-    originalimage,
+    extract_html: extract,
+    originalimage: original,
     thumbnail,
     page_url,
   };
 
-  return { id: item.titles.normalized, data };
+  return { id: item.title, data };
 }
 
 // ------------------------------------------------------------ //

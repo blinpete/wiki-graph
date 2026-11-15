@@ -72,9 +72,7 @@ export function useState(apiClient, extraState) {
     ...appStateFromQuery
   });
 
-  if (!appState.maxDepth) {
-    appState.maxDepth = 2
-  }
+  appState.maxDepth = 2
 
   qs.onChange(updateAppState);
   console.log('[] qs = ', qs);

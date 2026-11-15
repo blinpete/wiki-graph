@@ -199,7 +199,7 @@
   }
 
   .tiny-note {
-    color: hsl(0,2%,75%);
+    color: hsl(0,2%,65%);
     margin-top: 0;
     font-size: 0.9em;
 

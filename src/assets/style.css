@@ -13,6 +13,7 @@
   /* hsl(207deg 5% 35%) */
   --textColor: hsl(220, 10%, 45%);
   --textColorMuted: hsl(220, 5%, 50%);
+  --textColorMuted2: hsl(220, 5%, 60%);
   --borderColor: hsl(220, 10%, 88%);
   /* --borderColor: hsl(0deg 2% 86%); */
 
@@ -67,8 +68,9 @@ a:hover {
 /* reset */
 a {
   color: inherit;
-  text-decoration: underline solid 1.7px;
-  text-decoration: underline dotted 1.7px;
+  text-decoration: underline solid 1px;
+  text-decoration-color: var(--textColorMuted2);
+  text-underline-offset: 2px;
 }
 input,
 select {

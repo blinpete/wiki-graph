@@ -81,6 +81,7 @@
     <!-- 47 --> <option value="dty" lang="dty">डोटेली (Doteli)</option>
     <!-- 48 --> <option value="el" lang="el">Ελληνικά (Greek)</option>
     <!-- 49 --> <option value="eml" lang="eml">Emiliàn e rumagnòl (Emiliano-Romagnolo)</option>
+    <!-- 49 (2) --> <option value="en" lang="en">English</option>
     <!-- 50 --> <option value="eo" lang="eo">Esperanto (Esperanto)</option>
     <!-- 51 --> <option value="es" lang="es">Español (Spanish)</option>
     <!-- 52 --> <option value="et" lang="et">Eesti (Estonian)</option>
